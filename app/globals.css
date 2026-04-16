@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  @apply bg-surface text-ink antialiased;
+  font-feature-settings: "ss01", "cv02";
+}
+
+/* accessible focus ring on every interactive element */
+:where(a, button, input, textarea, select):focus-visible {
+  @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-surface;
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-6 md:px-10;
+  }
+
+  .pill {
+    @apply inline-flex items-center gap-2 rounded-full bg-surface-muted px-3 py-1 text-sm text-ink-soft;
+  }
+}
