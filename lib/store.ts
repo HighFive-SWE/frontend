@@ -2,101 +2,15 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import {
-  fallbackProfiles,
-  type Achievement,
-  type Profile,
-  type ProfileAvatarKey,
-  type ProgressPostResult,
-  type ProgressSummary,
-} from "@/services/api";
+import { fallbackProfiles, type Profile } from "@/services/api";
+import type {
+  AppState,
+  GamificationEvent,
+  MascotMood,
+  StepStatus,
+} from "./store-types";
 
-// ---- profile / family (phase 5) -------------------------------------------
-
-type ProfileSlice = {
-  profiles: Profile[];
-  currentProfileId: string | null;
-  profileGreetingId: number; // bumped on switch so mascot/UI can react.
-  setProfiles: (profiles: Profile[]) => void;
-  upsertProfile: (profile: Profile) => void;
-  switchProfile: (profileId: string) => void;
-};
-
-// ---- session --------------------------------------------------------------
-
-type SessionSlice = {
-  startedAt: number | null;
-  beginSession: () => void;
-  endSession: () => void;
-};
-
-// ---- step machine ---------------------------------------------------------
-
-export type StepStatus = "watching" | "attempting" | "success" | "stuck";
-
-export type StepMachineSlice = {
-  routineId: string | null;
-  stepIndex: number;
-  stepCount: number;
-  status: StepStatus;
-  attempts: number;
-  fails: number;
-  bestAccuracy: number;
-
-  startRoutine: (routineId: string, stepCount: number) => void;
-  enterAttempt: () => void;
-  recordSample: (accuracy: number, succeeded: boolean) => void;
-  markStuck: () => void;
-  advance: () => void;
-  retryStep: () => void;
-  exitRoutine: () => void;
-};
-
-// ---- progress (local mirror) ----------------------------------------------
-
-type ProgressSlice = {
-  completedIds: string[];
-  completedRoutineIds: string[];
-  accuracyHistory: number[];
-  completeLesson: (id: string) => void;
-  completeRoutine: (id: string) => void;
-  pushAccuracy: (value: number) => void;
-  reset: () => void;
-};
-
-// ---- gamification ---------------------------------------------------------
-
-export type MascotMood = "idle" | "happy" | "excited" | "encouraging" | "celebrating";
-
-export type GamificationEvent = {
-  id: number;
-  kind: "xp" | "levelup" | "achievement" | "streak" | "profile";
-  message: string;
-  achievement?: Achievement;
-  xp?: number;
-  level?: number;
-};
-
-type GamificationSlice = {
-  summary: ProgressSummary | null;
-  mascotMood: MascotMood;
-  confettiBurstId: number; // incremented to retrigger confetti
-  eventQueue: GamificationEvent[]; // surfaced as toasts; drained by UI
-
-  applyProgressSummary: (summary: ProgressSummary | null) => void;
-  applyProgressResult: (result: ProgressPostResult | null) => void;
-  setMascotMood: (mood: MascotMood) => void;
-  acknowledgeEvent: (id: number) => void;
-  triggerConfetti: () => void;
-  pushEvent: (event: Omit<GamificationEvent, "id">) => void;
-  resetLearnerState: () => void;
-};
-
-type AppState = ProfileSlice &
-  SessionSlice &
-  StepMachineSlice &
-  ProgressSlice &
-  GamificationSlice;
+export type { StepStatus, MascotMood, GamificationEvent } from "./store-types";
 
 const ACCURACY_WINDOW = 50;
 
@@ -148,7 +62,7 @@ export const useAppStore = create<AppState>()(
             ...state.eventQueue,
             {
               id: nextEventId(),
-              kind: "profile",
+              kind: "profile" as const,
               message: `hi ${profiles.find((p) => p.id === profileId)?.display_name ?? "there"}!`,
             },
           ].slice(-10),
@@ -340,24 +254,7 @@ export const useAppStore = create<AppState>()(
   ),
 );
 
-export const useProgress = useAppStore;
 export const useStepMachineState = useAppStore;
-
-export const selectStepMachine = (state: AppState) => ({
-  status: state.status,
-  attempts: state.attempts,
-  fails: state.fails,
-  stepIndex: state.stepIndex,
-  stepCount: state.stepCount,
-  bestAccuracy: state.bestAccuracy,
-});
-
-export const selectGamification = (state: AppState) => ({
-  summary: state.summary,
-  mascotMood: state.mascotMood,
-  confettiBurstId: state.confettiBurstId,
-  eventQueue: state.eventQueue,
-});
 
 // --- helpers --------------------------------------------------------------
 
@@ -365,7 +262,5 @@ export function selectCurrentProfile(state: AppState): Profile | null {
   if (!state.currentProfileId) return null;
   return state.profiles.find((p) => p.id === state.currentProfileId) ?? null;
 }
-
-export const AVATAR_KEYS: ProfileAvatarKey[] = ["peach", "mint", "lilac", "brand"];
 
 export type { Profile };

@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 import { useCallback, useState } from "react";
 import { Button } from "@/components/Button";
 import { useAppStore, useStepMachineState } from "@/lib/store";
@@ -96,11 +97,18 @@ export default function LearnPage() {
       <DailyGoalStrip />
 
       {!selected && (
-        <RoutinePicker
-          routines={data}
-          completedIds={completedRoutineIds}
-          onSelect={handleSelect}
-        />
+        <>
+          <div className="flex justify-end">
+            <Link href="/create-routine">
+              <Button size="sm">+ create routine</Button>
+            </Link>
+          </div>
+          <RoutinePicker
+            routines={data}
+            completedIds={completedRoutineIds}
+            onSelect={handleSelect}
+          />
+        </>
       )}
 
       {selected && !completion && (

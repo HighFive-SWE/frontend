@@ -50,6 +50,7 @@ function SiteHeader() {
           <NavLink href="/learn">learn</NavLink>
           <NavLink href="/mirror">mirror</NavLink>
           <NavLink href="/family">family</NavLink>
+          <NavLink href="/educator">educator</NavLink>
         </nav>
         <div className="flex items-center gap-3">
           <HUD />
@@ -76,7 +77,7 @@ function SiteFooter() {
     <footer className="border-t border-ink/5 py-8">
       <div className="container-page flex flex-col items-start justify-between gap-2 text-sm text-ink-faint md:flex-row md:items-center">
         <span>HighFive · built for real conversations</span>
-        <span>phase 5 · family mode</span>
+        <span>phase 6 · educator + analytics</span>
       </div>
     </footer>
   );

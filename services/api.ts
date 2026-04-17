@@ -20,6 +20,22 @@ export type Routine = {
   description: string;
   scenario_tag: string;
   steps: RoutineStep[];
+  created_by?: string | null;
+  is_custom?: boolean;
+  created_at?: string;
+};
+
+export type RoutineCreatePayload = {
+  name: string;
+  description: string;
+  steps: RoutineStep[];
+  created_by: string;
+};
+
+export type RoutineUpdatePayload = {
+  name?: string;
+  description?: string;
+  steps?: RoutineStep[];
 };
 
 export type EvaluatePayload = {
@@ -44,6 +60,7 @@ export type ProgressPayload = {
   attempts: number;
   succeeded: boolean;
   completedRoutine?: boolean;
+  incorrectPoints?: number[];
 };
 
 export type Achievement = {
@@ -85,6 +102,42 @@ export type ProgressPostResult = {
   leveled_up: boolean;
 };
 
+// --- analytics (phase 6) ---------------------------------------------------
+
+export type WeakGesture = {
+  gesture_id: string;
+  attempts: number;
+  successes: number;
+  success_rate: number;
+  avg_accuracy: number;
+};
+
+export type TrendPoint = {
+  gesture_id: string;
+  accuracy: number;
+  succeeded: boolean;
+  at: string;
+};
+
+export type FingerName = "thumb" | "index" | "middle" | "ring" | "pinky";
+
+export type FingerHeat = {
+  finger: FingerName;
+  misses: number;
+  share: number;
+};
+
+export type AnalyticsSnapshot = {
+  profile_id: string;
+  sample_size: number;
+  avg_accuracy: number;
+  success_rate: number;
+  weak_gestures: WeakGesture[];
+  trend: TrendPoint[];
+  finger_heat: FingerHeat[];
+  weakest_gesture_id: string | null;
+};
+
 // --- profiles (phase 5) ----------------------------------------------------
 
 export type ProfileRole = "parent" | "child" | "educator";
@@ -112,24 +165,21 @@ export type ProfileCreatePayload = {
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 const fallbackLessons: Lesson[] = [
-  {
-    id: "hello",
-    title: "hello",
-    description: "wave an open palm beside your temple, then move it outward.",
-    difficulty: "starter",
-    tags: ["greetings", "daily"],
-    gesture_ids: ["hello"],
-    scenario_tag: "daily",
-  },
-  {
-    id: "water",
-    title: "water",
-    description: "form a 'w' with three fingers; tap it against your chin.",
-    difficulty: "starter",
-    tags: ["mealtime", "needs"],
-    gesture_ids: ["water"],
-    scenario_tag: "daily",
-  },
+  { id: "hello", title: "hello", description: "wave an open palm beside your temple, then move it outward.", difficulty: "starter", tags: ["greetings", "daily"], gesture_ids: ["hello"], scenario_tag: "daily" },
+  { id: "thank-you", title: "thank you", description: "flat hand touches chin and moves forward, like blowing a kiss.", difficulty: "starter", tags: ["manners", "daily"], gesture_ids: ["thank_you"], scenario_tag: "daily" },
+  { id: "please", title: "please", description: "soft open hand circling at the chest — gentle and polite.", difficulty: "starter", tags: ["manners", "daily"], gesture_ids: ["please"], scenario_tag: "daily" },
+  { id: "sorry", title: "sorry", description: "closed fist on the chest — small circle, eyes soft.", difficulty: "starter", tags: ["manners", "feelings"], gesture_ids: ["sorry"], scenario_tag: "daily" },
+  { id: "water", title: "water", description: "form a 'w' with three fingers; tap it against your chin.", difficulty: "starter", tags: ["mealtime", "needs"], gesture_ids: ["water"], scenario_tag: "daily" },
+  { id: "food", title: "food", description: "pinch all fingertips together, tap toward the mouth.", difficulty: "starter", tags: ["mealtime", "needs"], gesture_ids: ["food"], scenario_tag: "mealtime" },
+  { id: "help", title: "help", description: "thumb-up fist lifted on the other palm, raised together.", difficulty: "growing", tags: ["safety", "needs"], gesture_ids: ["help"], scenario_tag: "safety" },
+  { id: "stop", title: "stop", description: "flat palm facing out, fingers straight up — held still.", difficulty: "starter", tags: ["safety", "daily"], gesture_ids: ["stop"], scenario_tag: "safety" },
+  { id: "yes", title: "yes", description: "closed fist, gentle nodding motion.", difficulty: "starter", tags: ["daily", "communication"], gesture_ids: ["yes"], scenario_tag: "daily" },
+  { id: "no", title: "no", description: "index and middle extended, snap down to meet the thumb.", difficulty: "starter", tags: ["daily", "communication"], gesture_ids: ["no"], scenario_tag: "daily" },
+  { id: "bathroom", title: "bathroom", description: "fist with thumb peeking between index and middle — small shake.", difficulty: "growing", tags: ["needs", "daily"], gesture_ids: ["bathroom"], scenario_tag: "home" },
+  { id: "pain", title: "pain", description: "index finger points firmly toward where it hurts.", difficulty: "growing", tags: ["safety", "feelings"], gesture_ids: ["pain"], scenario_tag: "safety" },
+  { id: "tired", title: "tired", description: "fingers droop at the second knuckle — loose and heavy.", difficulty: "growing", tags: ["feelings", "daily"], gesture_ids: ["tired"], scenario_tag: "home" },
+  { id: "play", title: "play", description: "'y' hand — thumb and pinky out, middle fingers curled; gentle shake.", difficulty: "growing", tags: ["family", "fun"], gesture_ids: ["play"], scenario_tag: "family" },
+  { id: "sleep", title: "sleep", description: "soft fingers drift down the face, palm turning inward.", difficulty: "growing", tags: ["home", "daily"], gesture_ids: ["sleep"], scenario_tag: "home" },
 ];
 
 // keep in sync with backend/services/routine_service.py so the UI still runs
@@ -163,6 +213,41 @@ const fallbackRoutines: Routine[] = [
       { gesture_id: "hello", prompt: "greet", hint: "open palm — hold for a beat." },
       { gesture_id: "water", prompt: "ask for water", hint: "three fingers up, thumb tucked in." },
       { gesture_id: "hello", prompt: "wave to close", hint: "same hello — friendly and relaxed." },
+    ],
+  },
+  {
+    id: "basic-conversation",
+    name: "basic conversation",
+    description: "greet, thank, apologise — the politeness loop every learner needs.",
+    scenario_tag: "daily",
+    steps: [
+      { gesture_id: "hello", prompt: "sign 'hello'", hint: "open palm up — say hi." },
+      { gesture_id: "thank_you", prompt: "sign 'thank you'", hint: "flat hand from chin outward, palm toward you." },
+      { gesture_id: "please", prompt: "sign 'please'", hint: "soft hand at chest, small circle motion." },
+      { gesture_id: "sorry", prompt: "sign 'sorry'", hint: "closed fist on chest — small circle." },
+    ],
+  },
+  {
+    id: "at-home",
+    name: "at home",
+    description: "everyday needs around the house — food, water, rest.",
+    scenario_tag: "home",
+    steps: [
+      { gesture_id: "hello", prompt: "start with 'hello'", hint: "open palm wave." },
+      { gesture_id: "food", prompt: "ask for 'food'", hint: "pinch fingertips together, tap toward the mouth." },
+      { gesture_id: "water", prompt: "ask for 'water'", hint: "'w' shape, thumb across palm." },
+      { gesture_id: "sleep", prompt: "sign 'sleep'", hint: "soft fingers drifting down the face." },
+    ],
+  },
+  {
+    id: "emergency-help",
+    name: "emergency help",
+    description: "urgent signs — help, stop, pain. practise them steady.",
+    scenario_tag: "safety",
+    steps: [
+      { gesture_id: "help", prompt: "sign 'help'", hint: "thumb up on a closed fist, lifted on the other palm." },
+      { gesture_id: "stop", prompt: "sign 'stop'", hint: "flat palm facing out, fingers straight up." },
+      { gesture_id: "pain", prompt: "sign 'pain'", hint: "index out, a short firm jab forward." },
     ],
   },
 ];
@@ -240,6 +325,50 @@ export async function fetchRoutine(id: string): Promise<Routine> {
   }
 }
 
+export async function createRoutine(
+  payload: RoutineCreatePayload,
+): Promise<Routine | null> {
+  try {
+    const res = await fetch(`${API_URL}/routines`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { routine: Routine };
+    return data.routine;
+  } catch {
+    return null;
+  }
+}
+
+export async function updateRoutine(
+  id: string,
+  payload: RoutineUpdatePayload,
+): Promise<Routine | null> {
+  try {
+    const res = await fetch(`${API_URL}/routines/${id}`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { routine: Routine };
+    return data.routine;
+  } catch {
+    return null;
+  }
+}
+
+export async function deleteRoutine(id: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${API_URL}/routines/${id}`, { method: "DELETE" });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 export async function evaluateGesture(payload: EvaluatePayload): Promise<EvaluateResponse> {
   const res = await fetch(`${API_URL}/cv/evaluate`, {
     method: "POST",
@@ -270,6 +399,7 @@ export async function postProgress(
         attempts: payload.attempts,
         succeeded: payload.succeeded,
         completed_routine: payload.completedRoutine ?? false,
+        incorrect_points: payload.incorrectPoints ?? [],
       }),
     });
     if (!res.ok) return null;
@@ -303,6 +433,19 @@ export async function fetchProfiles(userId?: string): Promise<Profile[]> {
     return data.profiles;
   } catch {
     return fallbackProfiles;
+  }
+}
+
+export async function fetchAnalytics(
+  profileId: string,
+): Promise<AnalyticsSnapshot | null> {
+  try {
+    const res = await fetch(`${API_URL}/analytics/${profileId}`, { cache: "no-store" });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { analytics: AnalyticsSnapshot };
+    return data.analytics;
+  } catch {
+    return null;
   }
 }
 

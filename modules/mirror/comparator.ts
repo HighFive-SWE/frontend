@@ -8,9 +8,12 @@ export type CompareResult = {
   band: Band;
 };
 
+// phase 6 recalibration: success now starts at 0.60, "partial" covers the
+// encouragement range below that. excellent is a within-success tier used
+// by the feedback copy + quality indicator — not a separate band.
 const JOINT_DRIFT_THRESHOLD = 0.22;
-const CORRECT = 0.8;
-const PARTIAL = 0.5;
+const CORRECT = 0.60;
+const PARTIAL = 0.40;
 
 function bandFor(accuracy: number): Band {
   if (accuracy >= CORRECT) return "correct";

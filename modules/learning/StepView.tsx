@@ -62,7 +62,7 @@ export function StepView({ routine, onComplete, onExit }: Props) {
   });
 
   // wire live comparator results into the step machine.
-  useStepMachine({
+  const { quality } = useStepMachine({
     enabled: cameraState === "live",
     routineId: routine.id,
     currentGestureId: gestureId,
@@ -217,7 +217,11 @@ export function StepView({ routine, onComplete, onExit }: Props) {
                 />
                 {status === "success" && (
                   <span className="rounded-full bg-accent-mint/95 px-3 py-1 text-sm font-medium text-ink shadow-soft">
-                    nailed it ✓
+                    {quality === "excellent"
+                      ? "excellent ★"
+                      : quality === "great"
+                        ? "almost perfect ✓"
+                        : "nice — got it ✓"}
                   </span>
                 )}
               </div>

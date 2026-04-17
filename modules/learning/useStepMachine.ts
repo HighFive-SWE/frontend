@@ -8,6 +8,7 @@ import {
   SUCCESS_ACCURACY_FLOOR,
   SUCCESS_CONSECUTIVE,
   difficultyFor,
+  qualityFor,
 } from "./adaptive";
 
 type Params = {
@@ -43,11 +44,13 @@ export function useStepMachine({
   const consecutiveRef = useRef(0);
   const lastSampleAtRef = useRef(0);
   const lastPostedStepRef = useRef<number | null>(null);
+  const lastIncorrectRef = useRef<number[]>([]);
 
   // reset the consecutive counter whenever the active step changes.
   useEffect(() => {
     consecutiveRef.current = 0;
     lastSampleAtRef.current = 0;
+    lastIncorrectRef.current = [];
   }, [stepIndex, routineId]);
 
   // feed each new comparator result into the machine.
@@ -63,6 +66,9 @@ export function useStepMachine({
     const passed = result.accuracy >= SUCCESS_ACCURACY_FLOOR;
     consecutiveRef.current = passed ? consecutiveRef.current + 1 : 0;
     const cleared = consecutiveRef.current >= SUCCESS_CONSECUTIVE;
+    // stash the most recent incorrect_points so the success POST can include
+    // finger-heat telemetry for phase 6 analytics.
+    lastIncorrectRef.current = result.incorrectPoints;
 
     recordSample(result.accuracy, cleared);
     pushAccuracy(result.accuracy);
@@ -87,6 +93,7 @@ export function useStepMachine({
       attempts: Math.max(attempts, 1),
       succeeded: true,
       completedRoutine: isFinalStep,
+      incorrectPoints: lastIncorrectRef.current,
     })
       .then((res) => {
         if (res) applyProgressResult(res);
@@ -114,5 +121,6 @@ export function useStepMachine({
   return {
     difficulty: difficultyFor(fails),
     bestAccuracy,
+    quality: qualityFor(bestAccuracy),
   };
 }

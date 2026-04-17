@@ -10,11 +10,22 @@ export const GHOST_AT_FAILS = 6;
 export const DEMO_LOOP_MS = 3000;
 export const DEMO_LOOP_SLOW_MS = 5000;
 
-// success rule: a step clears when we observe this many consecutive
-// "correct" samples (accuracy >= SUCCESS_ACCURACY_FLOOR). avoids flicker
-// on a single frame that happens to line up.
-export const SUCCESS_ACCURACY_FLOOR = 0.78;
+// success rule: a step clears when we observe this many consecutive samples
+// at or above SUCCESS_ACCURACY_FLOOR. phase 6 recalibrated this from 0.78
+// to 0.60 — humans aren't perfect and the old floor frustrated real learners.
+// above this floor we still grade the shape: GREAT at 0.70, EXCELLENT at 0.85.
+export const SUCCESS_ACCURACY_FLOOR = 0.60;
+export const GREAT_ACCURACY = 0.70;
+export const EXCELLENT_ACCURACY = 0.85;
 export const SUCCESS_CONSECUTIVE = 3;
+
+export type Quality = "good" | "great" | "excellent";
+
+export function qualityFor(accuracy: number): Quality {
+  if (accuracy >= EXCELLENT_ACCURACY) return "excellent";
+  if (accuracy >= GREAT_ACCURACY) return "great";
+  return "good";
+}
 
 export type Difficulty = "normal" | "hint" | "slow" | "ghost";
 
