@@ -71,8 +71,8 @@ export default function EducatorPage() {
   return (
     <div className="container-page flex flex-col gap-8 py-12">
       <header className="flex flex-col gap-2">
-        <span className="pill w-fit">educator</span>
-        <h1 className="font-display text-3xl font-semibold md:text-4xl">
+        <p className="font-mono text-xs tracking-wide text-ink-faint">educator</p>
+        <h1 className="font-display text-3xl font-bold md:text-4xl">
           coaching view
         </h1>
         <p className="max-w-2xl text-ink-soft">

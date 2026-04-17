@@ -165,7 +165,7 @@ export function StepView({ routine, onComplete, onExit }: Props) {
     <div className="grid gap-6 md:grid-cols-[1fr_1fr]">
       <div className="flex flex-col gap-4">
         <div className="rounded-3xl border border-ink/5 bg-white p-5 shadow-soft">
-          <span className="pill w-fit">target · {currentStep.gesture_id}</span>
+          <span className="font-mono text-xs tracking-wide text-ink-faint">target · {currentStep.gesture_id}</span>
           <h3 className="mt-3 font-display text-2xl font-semibold">{currentStep.prompt}</h3>
           <p className="mt-1 text-ink-soft">{currentStep.hint}</p>
         </div>
@@ -340,7 +340,7 @@ function CameraMessage({
   }
   return (
     <div className="flex flex-col items-center gap-2">
-      <div className="grid h-16 w-16 place-items-center rounded-full bg-white/15 text-3xl">📷</div>
+      <div className="grid h-12 w-12 place-items-center rounded-xl bg-white/10 font-mono text-sm font-bold">cam</div>
       <p className="font-display text-lg">camera is off</p>
       <p className="text-sm text-white/70">tap start practice to begin.</p>
     </div>

@@ -1,110 +1,255 @@
 import Link from "next/link";
 import { Button } from "@/components/Button";
-import { Card } from "@/components/Card";
 
 export default function HomePage() {
   return (
-    <div className="container-page flex flex-col gap-16 py-12 md:py-20">
+    <div className="flex flex-col">
       <Hero />
-      <QuickActions />
-      <DailyRoutinePreview />
+      <Features />
+      <HowItWorks />
+      <Audience />
+      <CallToAction />
     </div>
   );
 }
+
+/* ---------- hero --------------------------------------------------------- */
 
 function Hero() {
   return (
-    <section className="grid gap-10 md:grid-cols-[1.1fr_1fr] md:items-center">
-      <div className="flex flex-col gap-6">
-        <span className="pill w-fit">real-time · vision-first</span>
-        <h1 className="font-display text-4xl font-semibold leading-tight tracking-tight md:text-6xl">
-          sign, see, speak —
-          <span className="block text-brand-500">together.</span>
-        </h1>
-        <p className="max-w-xl text-lg text-ink-soft">
-          HighFive teaches sign language with live camera feedback, so every gesture gets gentle,
-          instant guidance. Built for kids, families, and classrooms.
+    <section className="border-b border-ink/5">
+      <div className="container-page py-24 md:py-32 lg:py-40">
+        <div className="max-w-3xl">
+          <p className="font-mono text-sm tracking-wide text-ink-faint">
+            real-time computer vision
+          </p>
+          <h1 className="mt-4 font-display text-5xl font-bold leading-[1.05] tracking-tight md:text-7xl lg:text-8xl">
+            learn sign language with your hands
+          </h1>
+          <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">
+            HighFive uses your camera to track 21 hand landmarks in real time.
+            Sign a gesture, get instant feedback, build fluency. Built for kids,
+            families, and classrooms.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <Button as={Link} href="/learn" size="lg">
+              start learning
+            </Button>
+            <Button as={Link} href="/live" variant="ghost" size="lg">
+              try live mode
+            </Button>
+          </div>
+          <p className="mt-8 font-mono text-xs text-ink-faint">
+            27 gestures · 9 routines · no account needed
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- features ----------------------------------------------------- */
+
+const FEATURES = [
+  {
+    label: "01",
+    title: "mirror mode",
+    description:
+      "see your hand skeleton tracked in real time. pick any gesture, practise, and get instant accuracy feedback.",
+    href: "/mirror",
+  },
+  {
+    label: "02",
+    title: "live mode",
+    description:
+      "sign freely — HighFive matches your gesture against the full library and builds a sentence on the fly.",
+    href: "/live",
+  },
+  {
+    label: "03",
+    title: "guided routines",
+    description:
+      "scenario-based lessons walk you through conversations step by step. adaptive hints kick in if you get stuck.",
+    href: "/learn",
+  },
+  {
+    label: "04",
+    title: "educator dashboard",
+    description:
+      "see which gestures each learner struggles with, track accuracy over time, and spot finger-level drift.",
+    href: "/educator",
+  },
+] as const;
+
+function Features() {
+  return (
+    <section className="py-24">
+      <div className="container-page">
+        <p className="font-mono text-sm tracking-wide text-ink-faint">
+          what you can do
         </p>
-        <div className="flex flex-wrap gap-3">
-          <Button as={Link} href="/learn" size="lg">
+        <h2 className="mt-3 font-display text-3xl font-bold md:text-4xl">
+          four ways to learn and teach
+        </h2>
+        <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-ink/5 bg-ink/5 md:grid-cols-2">
+          {FEATURES.map((f) => (
+            <Link
+              key={f.title}
+              href={f.href}
+              className="group flex flex-col gap-3 bg-white p-8 transition hover:bg-surface-muted"
+            >
+              <span className="font-mono text-xs text-ink-faint">
+                {f.label}
+              </span>
+              <h3 className="font-display text-xl font-semibold">{f.title}</h3>
+              <p className="text-ink-soft leading-relaxed">{f.description}</p>
+              <span className="mt-auto text-sm font-medium text-brand-600 transition group-hover:translate-x-0.5">
+                explore
+              </span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- how it works ------------------------------------------------- */
+
+const STEPS = [
+  {
+    num: "01",
+    title: "see the gesture",
+    detail:
+      "watch a looping demo of each sign — slow mode and ghost-hand overlays help you lock in the shape.",
+  },
+  {
+    num: "02",
+    title: "try it yourself",
+    detail:
+      "your webcam tracks 21 hand landmarks. HighFive compares them in real time and shows exactly where you drift.",
+  },
+  {
+    num: "03",
+    title: "earn and advance",
+    detail:
+      "streak days, xp, achievements, and level-ups keep you coming back. the adaptive engine gets harder as you improve.",
+  },
+] as const;
+
+function HowItWorks() {
+  return (
+    <section className="border-y border-ink/5 bg-surface py-24">
+      <div className="container-page">
+        <p className="font-mono text-sm tracking-wide text-ink-faint">
+          how it works
+        </p>
+        <h2 className="mt-3 font-display text-3xl font-bold md:text-4xl">
+          three steps to fluency
+        </h2>
+        <div className="mt-12 grid gap-12 md:grid-cols-3 md:gap-8">
+          {STEPS.map((s) => (
+            <div key={s.num} className="flex flex-col gap-3">
+              <span className="font-mono text-3xl font-semibold text-brand-400/60">
+                {s.num}
+              </span>
+              <h3 className="font-display text-lg font-semibold">{s.title}</h3>
+              <p className="text-ink-soft leading-relaxed">{s.detail}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- audience split ----------------------------------------------- */
+
+function Audience() {
+  return (
+    <section className="py-24">
+      <div className="container-page grid gap-6 md:grid-cols-2">
+        <div className="flex flex-col gap-4 rounded-2xl border border-ink/5 p-8">
+          <p className="font-mono text-xs tracking-wide text-ink-faint">
+            for families
+          </p>
+          <h3 className="font-display text-2xl font-bold">
+            learn alongside your child
+          </h3>
+          <p className="text-ink-soft leading-relaxed">
+            set up family profiles, track each learner&apos;s progress
+            independently, and practise together. no sign language experience
+            required — HighFive guides both of you.
+          </p>
+          <Button
+            as={Link}
+            href="/family"
+            variant="ghost"
+            size="sm"
+            className="mt-2 w-fit"
+          >
+            family dashboard
+          </Button>
+        </div>
+        <div className="flex flex-col gap-4 rounded-2xl border border-ink/5 p-8">
+          <p className="font-mono text-xs tracking-wide text-ink-faint">
+            for educators
+          </p>
+          <h3 className="font-display text-2xl font-bold">
+            see where every learner drifts
+          </h3>
+          <p className="text-ink-soft leading-relaxed">
+            accuracy trends, weak gestures, and per-finger heatmaps for each
+            student. create custom routines tailored to your class and watch them
+            practise in real time.
+          </p>
+          <Button
+            as={Link}
+            href="/educator"
+            variant="ghost"
+            size="sm"
+            className="mt-2 w-fit"
+          >
+            educator view
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- CTA ---------------------------------------------------------- */
+
+function CallToAction() {
+  return (
+    <section className="bg-ink py-24 text-white">
+      <div className="container-page flex flex-col items-center gap-6 text-center">
+        <h2 className="font-display text-3xl font-bold md:text-5xl">
+          ready to start signing?
+        </h2>
+        <p className="max-w-md text-lg text-white/50">
+          no account, no download. open your camera and go.
+        </p>
+        <div className="mt-2 flex flex-wrap justify-center gap-3">
+          <Button
+            as={Link}
+            href="/learn"
+            size="lg"
+            className="bg-white text-ink shadow-soft hover:bg-white/90"
+          >
             start learning
           </Button>
-          <Button as={Link} href="/mirror" variant="ghost" size="lg">
-            open mirror mode
+          <Button
+            as={Link}
+            href="/live"
+            size="lg"
+            variant="ghost"
+            className="border border-white/20 text-white hover:bg-white/10"
+          >
+            try live mode
           </Button>
         </div>
       </div>
-      <HeroVisual />
-    </section>
-  );
-}
-
-function HeroVisual() {
-  return (
-    <div className="relative aspect-square w-full max-w-md justify-self-center">
-      <div className="absolute inset-4 rounded-3xl bg-brand-100 shadow-soft" />
-      <div className="absolute inset-0 grid place-items-center rounded-3xl bg-gradient-to-br from-brand-400 to-brand-700 text-white shadow-soft">
-        <div className="flex flex-col items-center gap-3">
-          <div className="grid h-24 w-24 place-items-center rounded-full bg-white/15 text-5xl">
-            ✋
-          </div>
-          <p className="text-sm uppercase tracking-widest text-white/70">live preview</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function QuickActions() {
-  return (
-    <section className="grid gap-6 md:grid-cols-2">
-      <Card
-        as={Link}
-        href="/learn"
-        title="practice a scenario"
-        subtitle="stepwise routines with live feedback and adaptive hints."
-        accent="mint"
-      />
-      <Card
-        as={Link}
-        href="/mirror"
-        title="mirror mode"
-        subtitle="free-form practice — try any gesture, see the skeleton track."
-        accent="lilac"
-      />
-    </section>
-  );
-}
-
-function DailyRoutinePreview() {
-  const items = [
-    { label: "morning · hello", minutes: 2 },
-    { label: "family · thank you", minutes: 3 },
-    { label: "mealtime · more, please", minutes: 4 },
-  ];
-
-  return (
-    <section className="flex flex-col gap-6">
-      <header className="flex items-end justify-between">
-        <div>
-          <h2 className="font-display text-2xl font-semibold md:text-3xl">today&apos;s routine</h2>
-          <p className="text-ink-soft">three gentle lessons · under ten minutes total.</p>
-        </div>
-        <Link href="/learn" className="text-sm font-medium text-brand-600 hover:text-brand-700">
-          view all →
-        </Link>
-      </header>
-      <ul className="grid gap-4 md:grid-cols-3">
-        {items.map((item) => (
-          <li
-            key={item.label}
-            className="flex flex-col gap-4 rounded-3xl border border-ink/5 bg-white p-5 shadow-soft"
-          >
-            <div className="pill w-fit">{item.minutes} min</div>
-            <p className="font-display text-lg font-medium">{item.label}</p>
-          </li>
-        ))}
-      </ul>
     </section>
   );
 }

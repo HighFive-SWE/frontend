@@ -83,8 +83,8 @@ export default function LearnPage() {
   return (
     <div className="container-page flex flex-col gap-8 py-12">
       <header className="flex flex-col gap-2">
-        <span className="pill w-fit">scenarios</span>
-        <h1 className="font-display text-3xl font-semibold md:text-4xl">
+        <p className="font-mono text-xs tracking-wide text-ink-faint">scenarios</p>
+        <h1 className="font-display text-3xl font-bold md:text-4xl">
           {selected ? selected.name : "pick a scenario to practise"}
         </h1>
         <p className="max-w-2xl text-ink-soft">

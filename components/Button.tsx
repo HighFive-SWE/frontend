@@ -28,7 +28,7 @@ const sizeClasses: Record<Size, string> = {
 };
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-full font-medium transition active:scale-[0.98] disabled:cursor-not-allowed";
+  "inline-flex items-center justify-center gap-2 rounded-xl font-medium transition active:scale-[0.98] disabled:cursor-not-allowed";
 
 export function Button<T extends ElementType = "button">(props: ButtonProps<T>) {
   const { as, variant = "primary", size = "md", className = "", children, ...rest } = props;

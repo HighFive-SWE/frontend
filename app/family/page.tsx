@@ -45,8 +45,8 @@ export default function FamilyPage() {
   return (
     <div className="container-page flex flex-col gap-8 py-12">
       <header className="flex flex-col gap-2">
-        <span className="pill w-fit">family</span>
-        <h1 className="font-display text-3xl font-semibold md:text-4xl">
+        <p className="font-mono text-xs tracking-wide text-ink-faint">family</p>
+        <h1 className="font-display text-3xl font-bold md:text-4xl">
           everyone learning under one roof
         </h1>
         <p className="max-w-2xl text-ink-soft">
@@ -99,7 +99,7 @@ function ProfileCard({
 
   return (
     <article
-      className={`flex flex-col gap-4 rounded-3xl border bg-white p-6 shadow-soft transition ${
+      className={`flex flex-col gap-4 rounded-2xl border bg-white p-6 shadow-soft transition ${
         isActive ? "border-brand-500/60 ring-2 ring-brand-500/30" : "border-ink/5"
       }`}
     >

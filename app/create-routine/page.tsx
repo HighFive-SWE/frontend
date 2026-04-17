@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { Suspense, useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/Button";
 import { GESTURE_LIST, type GestureId } from "@/modules/mirror/gestures";
@@ -20,6 +20,14 @@ import { useQuery } from "@tanstack/react-query";
 const MAX_STEPS = 6;
 
 export default function CreateRoutinePage() {
+  return (
+    <Suspense>
+      <CreateRoutineInner />
+    </Suspense>
+  );
+}
+
+function CreateRoutineInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get("edit");
@@ -118,8 +126,8 @@ export default function CreateRoutinePage() {
   return (
     <div className="container-page flex flex-col gap-8 py-12">
       <header className="flex flex-col gap-2">
-        <span className="pill w-fit">{editId ? "edit routine" : "new routine"}</span>
-        <h1 className="font-display text-3xl font-semibold md:text-4xl">
+        <p className="font-mono text-xs tracking-wide text-ink-faint">{editId ? "edit routine" : "new routine"}</p>
+        <h1 className="font-display text-3xl font-bold md:text-4xl">
           {editId ? "edit your routine" : "build a routine"}
         </h1>
         <p className="max-w-2xl text-ink-soft">

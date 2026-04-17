@@ -21,7 +21,7 @@ export function RoutinePicker({ routines, completedIds, onSelect }: Props) {
               key={routine.id}
               type="button"
               onClick={() => onSelect(routine)}
-              className="group relative flex flex-col items-start gap-3 rounded-3xl border border-ink/5 bg-white p-6 text-left shadow-soft transition hover:-translate-y-0.5 hover:shadow-[0_16px_40px_-16px_rgba(26,29,38,0.25)]"
+              className="group relative flex flex-col items-start gap-3 rounded-2xl border border-ink/5 bg-white p-6 text-left shadow-soft transition hover:-translate-y-0.5 hover:shadow-lifted"
             >
               <div className="flex items-center gap-2">
                 <span className="pill">{routine.scenario_tag}</span>

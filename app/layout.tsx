@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Inter, Space_Grotesk } from "next/font/google";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { GamificationLayer } from "@/modules/gamification/GamificationLayer";
@@ -6,6 +7,18 @@ import { HUD } from "@/modules/gamification/HUD";
 import { ProfileSwitcher } from "@/modules/profile/ProfileSwitcher";
 import { Providers } from "./providers";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space-grotesk",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "HighFive — learn sign language, live",
@@ -21,7 +34,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`}>
       <body>
         <Providers>
           <div className="flex min-h-dvh flex-col">
@@ -38,21 +51,22 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
 function SiteHeader() {
   return (
-    <header className="sticky top-0 z-30 border-b border-ink/5 bg-surface/80 backdrop-blur">
-      <div className="container-page flex h-16 items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-2 font-display text-lg font-semibold">
-          <span className="grid h-8 w-8 place-items-center rounded-2xl bg-brand-500 text-white shadow-soft">
+    <header className="sticky top-0 z-30 border-b border-ink/5 bg-surface/90 backdrop-blur-md">
+      <div className="container-page flex h-14 items-center gap-6">
+        <Link href="/" className="flex items-center gap-2 font-display text-base font-bold tracking-tight">
+          <span className="grid h-7 w-7 place-items-center rounded-lg bg-ink text-xs font-bold text-white">
             H
           </span>
           HighFive
         </Link>
-        <nav className="flex items-center gap-1 text-sm">
+        <nav className="hidden items-center gap-1 text-sm md:flex">
           <NavLink href="/learn">learn</NavLink>
+          <NavLink href="/live">live</NavLink>
           <NavLink href="/mirror">mirror</NavLink>
           <NavLink href="/family">family</NavLink>
           <NavLink href="/educator">educator</NavLink>
         </nav>
-        <div className="flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-3">
           <HUD />
           <ProfileSwitcher />
         </div>
@@ -65,7 +79,7 @@ function NavLink({ href, children }: { href: string; children: ReactNode }) {
   return (
     <Link
       href={href}
-      className="rounded-full px-4 py-2 text-ink-soft transition hover:bg-surface-muted hover:text-ink"
+      className="rounded-lg px-3 py-1.5 text-ink-soft transition hover:bg-surface-muted hover:text-ink"
     >
       {children}
     </Link>
@@ -74,10 +88,10 @@ function NavLink({ href, children }: { href: string; children: ReactNode }) {
 
 function SiteFooter() {
   return (
-    <footer className="border-t border-ink/5 py-8">
-      <div className="container-page flex flex-col items-start justify-between gap-2 text-sm text-ink-faint md:flex-row md:items-center">
-        <span>HighFive · built for real conversations</span>
-        <span>phase 6 · educator + analytics</span>
+    <footer className="border-t border-ink/5 py-6">
+      <div className="container-page flex items-center justify-between text-xs text-ink-faint">
+        <span className="font-display font-medium text-ink">HighFive</span>
+        <span>real-time sign language learning</span>
       </div>
     </footer>
   );

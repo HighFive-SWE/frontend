@@ -20,7 +20,19 @@ export type GestureId =
   | "pain"
   | "tired"
   | "play"
-  | "sleep";
+  | "sleep"
+  | "drink"
+  | "eat"
+  | "friend"
+  | "family"
+  | "doctor"
+  | "school"
+  | "home"
+  | "wait"
+  | "come"
+  | "go"
+  | "more"
+  | "finished";
 
 type Reference = readonly Landmark[];
 type ThumbState =
@@ -120,6 +132,19 @@ export const GESTURES: Record<GestureId, Reference> = {
   tired:     build("across",       ["bent_tip", "bent_tip", "bent_tip", "bent_tip"]),
   play:      build("corner",       ["fold", "fold", "fold", "ext"]),
   sleep:     build("inline",       ["half", "half", "half", "half"], -0.25),
+  // phase 8 expansion
+  drink:     build("side",         ["half", "half", "fold", "fold"], 0.15),
+  eat:       build("inline",       ["half", "half", "half", "half"]),
+  friend:    build("across",       ["ext", "fold", "fold", "fold"], -0.15),
+  family:    build("pinch_index",  ["fold", "fold", "fold", "fold"], 0.10),
+  doctor:    build("touch_middle", ["ext", "fold", "fold", "fold"], 0.15),
+  school:    build("side",         ["ext", "ext", "ext", "ext"], 0.15),
+  home:      build("pinch_index",  ["tip_in", "tip_in", "tip_in", "tip_in"], 0.15),
+  wait:      build("side",         ["half", "half", "half", "half"], 0.20),
+  come:      build("across",       ["ext", "fold", "fold", "fold"], 0.25),
+  go:        build("up",           ["ext", "fold", "fold", "fold"]),
+  more:      build("pinch_index",  ["tip_in", "tip_in", "tip_in", "tip_in"], -0.15),
+  finished:  build("side",         ["ext", "ext", "ext", "ext"], -0.15),
 };
 
 export const GESTURE_LIST: { id: GestureId; title: string; hint: string }[] = [
@@ -138,4 +163,16 @@ export const GESTURE_LIST: { id: GestureId; title: string; hint: string }[] = [
   { id: "tired",     title: "tired",     hint: "fingers drooping at the second knuckle — loose and heavy." },
   { id: "play",      title: "play",      hint: "'y' hand — thumb and pinky out, other fingers curled; shake." },
   { id: "sleep",     title: "sleep",     hint: "soft fingers drifting down the face — palm turning inward." },
+  { id: "drink",     title: "drink",     hint: "c-shape hand tilted back — like holding a cup to your lips." },
+  { id: "eat",       title: "eat",       hint: "relaxed flat hand, fingertips tapping toward the mouth." },
+  { id: "friend",    title: "friend",    hint: "hook index fingers together — swap which is on top." },
+  { id: "family",    title: "family",    hint: "pinch hand sweeping in a circle — everyone together." },
+  { id: "doctor",    title: "doctor",    hint: "'d' hand tapped on the opposite wrist — taking a pulse." },
+  { id: "school",    title: "school",    hint: "flat palms clapping twice — calling attention." },
+  { id: "home",      title: "home",      hint: "pinched fingertips from cheek to jaw — where you eat and sleep." },
+  { id: "wait",      title: "wait",      hint: "open hands, fingers half-curled, held up with a small wiggle." },
+  { id: "come",      title: "come",      hint: "index finger beckoning toward you — palm up." },
+  { id: "go",        title: "go",        hint: "index finger pointing outward, thumb up — off you go." },
+  { id: "more",      title: "more",      hint: "pinched fingertips tapped together twice." },
+  { id: "finished",  title: "finished",  hint: "open palms flipped outward — all done." },
 ];

@@ -69,8 +69,8 @@ export default function MirrorPage() {
   return (
     <div className="container-page flex flex-col gap-8 py-12">
       <header className="flex flex-col gap-2">
-        <span className="pill w-fit">mirror mode</span>
-        <h1 className="font-display text-3xl font-semibold md:text-4xl">sign, see, adjust</h1>
+        <p className="font-mono text-xs tracking-wide text-ink-faint">mirror mode</p>
+        <h1 className="font-display text-3xl font-bold md:text-4xl">sign, see, adjust</h1>
         <p className="max-w-2xl text-ink-soft">
           your camera stays on-device. we track 21 hand landmarks, compare to the target sign, and
           colour the skeleton so you can see where to tweak.
@@ -167,10 +167,10 @@ function GesturePicker({
             key={g.id}
             type="button"
             onClick={() => onChange(g.id)}
-            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+            className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
               selected
-                ? "bg-brand-500 text-white shadow-soft"
-                : "bg-surface-muted text-ink hover:bg-ink/10"
+                ? "bg-brand-500 text-white"
+                : "bg-surface-muted text-ink-soft hover:bg-ink/5"
             }`}
           >
             {g.title}
@@ -203,7 +203,7 @@ function CameraMessage({ state, error }: { state: CameraState; error: string | n
   }
   return (
     <div className="flex flex-col items-center gap-2">
-      <div className="grid h-16 w-16 place-items-center rounded-full bg-white/15 text-3xl">📷</div>
+      <div className="grid h-12 w-12 place-items-center rounded-xl bg-white/10 font-mono text-sm font-bold">cam</div>
       <p className="font-display text-lg">camera is off</p>
       <p className="text-sm text-white/70">tap the button below to begin.</p>
     </div>

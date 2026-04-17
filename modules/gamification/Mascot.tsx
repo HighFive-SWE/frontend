@@ -37,10 +37,10 @@ export function Mascot() {
     >
       <div
         key={pulseKey}
-        className={`pointer-events-auto grid h-20 w-20 place-items-center rounded-3xl shadow-soft ${bg} ${animation}`}
+        className={`pointer-events-auto grid h-16 w-16 place-items-center rounded-2xl shadow-soft ${bg} ${animation}`}
         title={label}
       >
-        <span className="text-3xl">{face}</span>
+        <span className="text-2xl">{face}</span>
       </div>
       {mood !== "idle" && (
         <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-ink shadow-soft backdrop-blur">

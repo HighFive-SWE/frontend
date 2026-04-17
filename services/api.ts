@@ -180,6 +180,18 @@ const fallbackLessons: Lesson[] = [
   { id: "tired", title: "tired", description: "fingers droop at the second knuckle — loose and heavy.", difficulty: "growing", tags: ["feelings", "daily"], gesture_ids: ["tired"], scenario_tag: "home" },
   { id: "play", title: "play", description: "'y' hand — thumb and pinky out, middle fingers curled; gentle shake.", difficulty: "growing", tags: ["family", "fun"], gesture_ids: ["play"], scenario_tag: "family" },
   { id: "sleep", title: "sleep", description: "soft fingers drift down the face, palm turning inward.", difficulty: "growing", tags: ["home", "daily"], gesture_ids: ["sleep"], scenario_tag: "home" },
+  { id: "drink", title: "drink", description: "c-shape hand tilted back — like holding a cup to your lips.", difficulty: "starter", tags: ["mealtime", "needs"], gesture_ids: ["drink"], scenario_tag: "mealtime" },
+  { id: "eat", title: "eat", description: "relaxed flat hand, fingertips tapping toward the mouth.", difficulty: "starter", tags: ["mealtime", "needs"], gesture_ids: ["eat"], scenario_tag: "mealtime" },
+  { id: "friend", title: "friend", description: "hook index fingers together, swap which is on top.", difficulty: "growing", tags: ["people", "family"], gesture_ids: ["friend"], scenario_tag: "family" },
+  { id: "family", title: "family", description: "pinch hand sweeping in a circle — everyone together.", difficulty: "growing", tags: ["people", "family"], gesture_ids: ["family"], scenario_tag: "family" },
+  { id: "doctor", title: "doctor", description: "'d' hand tapped on the opposite wrist — taking a pulse.", difficulty: "growing", tags: ["safety", "people"], gesture_ids: ["doctor"], scenario_tag: "safety" },
+  { id: "school", title: "school", description: "flat palms clapping twice — calling attention.", difficulty: "growing", tags: ["places", "daily"], gesture_ids: ["school"], scenario_tag: "daily" },
+  { id: "home", title: "home", description: "pinched fingertips from cheek to jaw — where you eat and sleep.", difficulty: "starter", tags: ["places", "daily"], gesture_ids: ["home"], scenario_tag: "home" },
+  { id: "wait", title: "wait", description: "open hands, fingers half-curled, held up with a small wiggle.", difficulty: "growing", tags: ["daily", "communication"], gesture_ids: ["wait"], scenario_tag: "daily" },
+  { id: "come", title: "come", description: "index finger beckoning toward you — palm up.", difficulty: "growing", tags: ["daily", "communication"], gesture_ids: ["come"], scenario_tag: "daily" },
+  { id: "go", title: "go", description: "index finger pointing outward, thumb up — off you go.", difficulty: "growing", tags: ["daily", "communication"], gesture_ids: ["go"], scenario_tag: "daily" },
+  { id: "more", title: "more", description: "pinched fingertips tapped together twice.", difficulty: "starter", tags: ["mealtime", "requests"], gesture_ids: ["more"], scenario_tag: "mealtime" },
+  { id: "finished", title: "finished", description: "open palms flipped outward — all done.", difficulty: "starter", tags: ["daily", "communication"], gesture_ids: ["finished"], scenario_tag: "daily" },
 ];
 
 // keep in sync with backend/services/routine_service.py so the UI still runs
@@ -248,6 +260,43 @@ const fallbackRoutines: Routine[] = [
       { gesture_id: "help", prompt: "sign 'help'", hint: "thumb up on a closed fist, lifted on the other palm." },
       { gesture_id: "stop", prompt: "sign 'stop'", hint: "flat palm facing out, fingers straight up." },
       { gesture_id: "pain", prompt: "sign 'pain'", hint: "index out, a short firm jab forward." },
+    ],
+  },
+  {
+    id: "school-day",
+    name: "school day",
+    description: "signs you might use before, during, or after school.",
+    scenario_tag: "daily",
+    steps: [
+      { gesture_id: "hello", prompt: "greet your teacher", hint: "open palm wave." },
+      { gesture_id: "school", prompt: "sign 'school'", hint: "flat palms clapping — calling attention." },
+      { gesture_id: "friend", prompt: "sign 'friend'", hint: "hook index fingers and swap." },
+      { gesture_id: "finished", prompt: "sign 'finished'", hint: "open palms flipped outward — day's done." },
+    ],
+  },
+  {
+    id: "doctor-visit",
+    name: "doctor visit",
+    description: "practise telling the doctor what you need.",
+    scenario_tag: "safety",
+    steps: [
+      { gesture_id: "hello", prompt: "greet the doctor", hint: "open palm wave." },
+      { gesture_id: "doctor", prompt: "sign 'doctor'", hint: "'d' hand tapped on the wrist." },
+      { gesture_id: "pain", prompt: "sign 'pain'", hint: "index out — firm jab." },
+      { gesture_id: "help", prompt: "ask for 'help'", hint: "thumb up fist, lifted." },
+      { gesture_id: "thank_you", prompt: "sign 'thank you'", hint: "flat hand from chin outward." },
+    ],
+  },
+  {
+    id: "play-time",
+    name: "play time",
+    description: "hang out with friends — invite, play, and wrap up.",
+    scenario_tag: "family",
+    steps: [
+      { gesture_id: "come", prompt: "beckon a friend", hint: "index finger beckoning — palm up." },
+      { gesture_id: "play", prompt: "sign 'play'", hint: "'y' hand — thumb and pinky out, shake." },
+      { gesture_id: "more", prompt: "ask for 'more'", hint: "pinched fingertips tapped together." },
+      { gesture_id: "finished", prompt: "sign 'finished'", hint: "open palms flipped outward." },
     ],
   },
 ];

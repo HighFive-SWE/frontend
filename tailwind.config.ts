@@ -33,26 +33,28 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ["ui-sans-serif", "system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
-        display: ["ui-sans-serif", "system-ui", "sans-serif"],
-      },
-      borderRadius: {
-        xl: "1rem",
-        "2xl": "1.5rem",
-        "3xl": "2rem",
+        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        display: ["var(--font-space-grotesk)", "var(--font-inter)", "system-ui", "sans-serif"],
+        mono: ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },
       boxShadow: {
-        soft: "0 10px 30px -12px rgba(26, 29, 38, 0.18)",
-        glow: "0 0 0 4px rgba(75, 110, 255, 0.18)",
+        soft: "0 1px 2px rgba(0,0,0,0.04), 0 3px 12px rgba(0,0,0,0.05)",
+        lifted: "0 2px 4px rgba(0,0,0,0.04), 0 12px 40px rgba(0,0,0,0.1)",
+        glow: "0 0 0 3px rgba(75, 110, 255, 0.15)",
       },
       keyframes: {
         bounceSoft: {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-4px)" },
         },
+        fadeIn: {
+          from: { opacity: "0", transform: "translateY(4px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
       },
       animation: {
         bounceSoft: "bounceSoft 1.4s ease-in-out infinite",
+        fadeIn: "fadeIn 0.3s ease-out",
       },
     },
   },

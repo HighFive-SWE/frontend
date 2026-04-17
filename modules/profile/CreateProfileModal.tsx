@@ -98,7 +98,7 @@ export function CreateProfileModal({ open, onClose, onCreated }: Props) {
       <div
         role="dialog"
         aria-modal="true"
-        className="mx-4 w-full max-w-md rounded-3xl border border-ink/5 bg-white p-6 shadow-soft"
+        className="mx-4 w-full max-w-md rounded-2xl border border-ink/5 bg-white p-6 shadow-lifted"
       >
         <header className="mb-4 flex items-baseline justify-between">
           <h2 className="font-display text-xl font-semibold">new profile</h2>
