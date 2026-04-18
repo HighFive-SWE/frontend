@@ -14,10 +14,18 @@ export const DEMO_LOOP_SLOW_MS = 5000;
 // at or above SUCCESS_ACCURACY_FLOOR. phase 6 recalibrated this from 0.78
 // to 0.60 — humans aren't perfect and the old floor frustrated real learners.
 // above this floor we still grade the shape: GREAT at 0.70, EXCELLENT at 0.85.
+// phase 8.5: kept the floor but raised consecutive-sample count from 3 → 5 and
+// added a joint-drift gate (see useStepMachine) so a hand that briefly drifts
+// through the correct band cannot accidentally clear the step. 5 samples at
+// ~200ms cadence = ~1s of sustained pose, which is what a deliberate sign takes.
 export const SUCCESS_ACCURACY_FLOOR = 0.60;
 export const GREAT_ACCURACY = 0.70;
 export const EXCELLENT_ACCURACY = 0.85;
-export const SUCCESS_CONSECUTIVE = 3;
+export const SUCCESS_CONSECUTIVE = 5;
+// max number of drifting landmarks a sample can have and still count as a
+// "pass" toward the consecutive-hold streak. out of 21 joints — ~48% drift
+// ceiling. catches the case where similarity is 0.6 but most fingers are off.
+export const MAX_INCORRECT_FOR_PASS = 10;
 
 export type Quality = "good" | "great" | "excellent";
 

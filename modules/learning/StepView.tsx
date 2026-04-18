@@ -106,9 +106,13 @@ export function StepView({ routine, onComplete, onExit }: Props) {
 
   // release camera on unmount.
   useEffect(() => {
+    const video = videoRef.current;
     return () => {
       streamRef.current?.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
+      // phase 9: clear srcObject too so chromium drops the decoder and
+      // the browser's camera-in-use pill disappears immediately.
+      if (video) video.srcObject = null;
     };
   }, []);
 

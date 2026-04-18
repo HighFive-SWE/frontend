@@ -2,7 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FilesetResolver, HandLandmarker } from "@mediapipe/tasks-vision";
-import { compareGesture, type CompareResult } from "@/modules/mirror/comparator";
+import {
+  compareNormalized,
+  normalizeLandmarks,
+  type CompareResult,
+} from "@/modules/mirror/comparator";
 import { GESTURES, type GestureId } from "@/modules/mirror/gestures";
 import type { Landmark } from "@/modules/mirror/landmarks";
 
@@ -11,6 +15,10 @@ const MODEL_URL =
 const WASM_BASE = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.15/wasm";
 
 const LIVE_THRESHOLD = 0.65;
+
+// phase 9: frozen once at module load so we don't rebuild the [id, ref]
+// array every tick. GESTURES is a module-level constant, so this is safe.
+const GESTURE_ENTRIES = Object.entries(GESTURES) as [GestureId, readonly Landmark[]][];
 
 export type LiveMatch = {
   gestureId: GestureId;
@@ -26,7 +34,8 @@ export type LiveFrame = {
 type Status = "idle" | "loading" | "ready" | "error";
 
 // compares the user's hand against every registered gesture each tick and
-// returns the best match above LIVE_THRESHOLD.
+// returns the best match above LIVE_THRESHOLD. phase 9: normalizes the user's
+// landmarks once per tick and reuses that vector across all 27 gestures.
 export function useLiveDetector({
   videoRef,
   enabled,
@@ -78,8 +87,6 @@ export function useLiveDetector({
     };
   }, []);
 
-  const gestureEntries = Object.entries(GESTURES) as [GestureId, readonly Landmark[]][];
-
   const tick = useCallback(
     (now: number) => {
       rafRef.current = requestAnimationFrame(tick);
@@ -97,10 +104,12 @@ export function useLiveDetector({
       }
 
       const landmarks: Landmark[] = hand.map((p) => ({ x: p.x, y: p.y, z: p.z }));
+      // normalize once per frame, reuse across every gesture.
+      const normalized = normalizeLandmarks(landmarks);
 
       let best: LiveMatch | null = null;
-      for (const [gid, ref] of gestureEntries) {
-        const result = compareGesture(landmarks, ref);
+      for (const [gid, ref] of GESTURE_ENTRIES) {
+        const result = compareNormalized(normalized, ref);
         if (result.accuracy >= LIVE_THRESHOLD) {
           if (!best || result.accuracy > best.accuracy) {
             best = { gestureId: gid, accuracy: result.accuracy, result };
@@ -110,7 +119,6 @@ export function useLiveDetector({
 
       setFrame({ landmarks, match: best });
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [videoRef, intervalMs],
   );
 

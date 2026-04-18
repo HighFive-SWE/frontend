@@ -15,7 +15,7 @@ const JOINT_DRIFT_THRESHOLD = 0.22;
 const CORRECT = 0.60;
 const PARTIAL = 0.40;
 
-function bandFor(accuracy: number): Band {
+export function bandFor(accuracy: number): Band {
   if (accuracy >= CORRECT) return "correct";
   if (accuracy >= PARTIAL) return "partial";
   return "incorrect";
@@ -62,27 +62,65 @@ function similarity(
   return { sim: Math.exp(-mean * 1.5), perJoint };
 }
 
-export function compareGesture(
-  landmarks: readonly Landmark[],
+// phase 9: split the normalize step out so live mode can normalize once per
+// frame and compare that single vector against 27 references — instead of
+// re-normalizing inside every compareGesture() call. saves ~27x the work in
+// the live loop for no behavior change.
+export function compareNormalized(
+  userNormalized: readonly Landmark[],
   reference: readonly Landmark[],
   { allowMirror = true }: { allowMirror?: boolean } = {},
 ): CompareResult {
-  const user = normalizeLandmarks(landmarks);
-  let best = similarity(user, reference);
-
+  let best = similarity(userNormalized, reference);
   if (allowMirror) {
-    const mirrored = similarity(user, mirrorX(reference));
+    const mirrored = similarity(userNormalized, mirrorX(reference));
     if (mirrored.sim > best.sim) best = mirrored;
   }
-
   const incorrectPoints: number[] = [];
   for (let i = 0; i < best.perJoint.length; i += 1) {
     if (best.perJoint[i] > JOINT_DRIFT_THRESHOLD) incorrectPoints.push(i);
   }
-
   return {
     accuracy: best.sim,
     incorrectPoints,
     band: bandFor(best.sim),
   };
+}
+
+export function compareGesture(
+  landmarks: readonly Landmark[],
+  reference: readonly Landmark[],
+  options: { allowMirror?: boolean } = {},
+): CompareResult {
+  return compareNormalized(normalizeLandmarks(landmarks), reference, options);
+}
+
+// phase 9: small rolling smoother used by the trackers to remove flicker
+// between consecutive frames. we average accuracy across the last N samples
+// while keeping the most recent per-joint drift (so the skeleton highlights
+// stay responsive to what the user is doing *right now*).
+const SMOOTH_WINDOW = 4;
+
+export class ResultSmoother {
+  private readonly window: number;
+  private buf: number[] = [];
+
+  constructor(window: number = SMOOTH_WINDOW) {
+    this.window = Math.max(1, window);
+  }
+
+  push(result: CompareResult): CompareResult {
+    this.buf.push(result.accuracy);
+    if (this.buf.length > this.window) this.buf.shift();
+    const mean = this.buf.reduce((sum, v) => sum + v, 0) / this.buf.length;
+    return {
+      accuracy: mean,
+      band: bandFor(mean),
+      incorrectPoints: result.incorrectPoints,
+    };
+  }
+
+  reset() {
+    this.buf = [];
+  }
 }

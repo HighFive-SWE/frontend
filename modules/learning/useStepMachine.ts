@@ -5,6 +5,7 @@ import { useAppStore, useStepMachineState } from "@/lib/store";
 import type { CompareResult } from "@/modules/mirror/comparator";
 import { postProgress } from "@/services/api";
 import {
+  MAX_INCORRECT_FOR_PASS,
   SUCCESS_ACCURACY_FLOOR,
   SUCCESS_CONSECUTIVE,
   difficultyFor,
@@ -56,14 +57,27 @@ export function useStepMachine({
   // feed each new comparator result into the machine.
   useEffect(() => {
     if (!enabled || status !== "attempting") return;
-    if (!result) return;
+    if (!result) {
+      // hand left the frame (or the tracker hasn't got a read yet). reset the
+      // consecutive-hold streak so the user has to re-acquire the pose from
+      // scratch. without this, brief flashes of a correct shape between hand-
+      // out-of-frame moments could accumulate into a false "success".
+      consecutiveRef.current = 0;
+      return;
+    }
 
-    // debounce — only accept a new sample every ~220 ms (matches tracker cadence).
+    // debounce — only accept a new sample every ~200 ms (matches tracker cadence).
     const now = performance.now();
     if (now - lastSampleAtRef.current < 200) return;
     lastSampleAtRef.current = now;
 
-    const passed = result.accuracy >= SUCCESS_ACCURACY_FLOOR;
+    // pass gate: similarity at or above floor AND no more than
+    // MAX_INCORRECT_FOR_PASS drifting joints. the joint gate prevents "lucky"
+    // matches where overall similarity scraped past 0.60 but most fingers are
+    // still clearly off — the sign isn't actually formed.
+    const passed =
+      result.accuracy >= SUCCESS_ACCURACY_FLOOR &&
+      result.incorrectPoints.length <= MAX_INCORRECT_FOR_PASS;
     consecutiveRef.current = passed ? consecutiveRef.current + 1 : 0;
     const cleared = consecutiveRef.current >= SUCCESS_CONSECUTIVE;
     // stash the most recent incorrect_points so the success POST can include

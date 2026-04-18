@@ -46,9 +46,15 @@ export default function LivePage() {
   }, []);
 
   useEffect(() => {
+    const video = videoRef.current;
     return () => {
+      // phase 9: release both the MediaStream tracks *and* the srcObject
+      // pointer — chromium otherwise hangs on to the decoder until the
+      // next GC cycle, which shows up as a red camera-in-use indicator
+      // long after the user leaves the page.
       streamRef.current?.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
+      if (video) video.srcObject = null;
     };
   }, []);
 

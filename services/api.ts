@@ -1,3 +1,6 @@
+import { cacheRead, cacheWrite, queueAppend, queueRead, queueRemove, queueTouch } from "./cache";
+import { HttpFailure, httpJson } from "./http";
+
 export type Lesson = {
   id: string;
   title: string;
@@ -301,8 +304,6 @@ const fallbackRoutines: Routine[] = [
   },
 ];
 
-// fallback profiles mirror the backend seed so the family view renders
-// something meaningful even with the api down.
 export const fallbackProfiles: Profile[] = [
   {
     id: "profile-parent-1",
@@ -333,44 +334,63 @@ export const fallbackProfiles: Profile[] = [
   },
 ];
 
-export async function fetchLessons(): Promise<Lesson[]> {
+// phase 9: read-through cache pattern for GET endpoints. on success we
+// persist to localStorage; on failure we return whatever's cached (or the
+// seeded fallback). this is what makes the app boot cleanly from an
+// airplane or a flaky coffee-shop wifi.
+async function getWithCache<T>(
+  cacheKey: string,
+  url: string,
+  pick: (json: unknown) => T,
+  seed: T,
+): Promise<T> {
   try {
-    const res = await fetch(`${API_URL}/lessons`, { cache: "no-store" });
-    if (!res.ok) throw new Error(`backend returned ${res.status}`);
-    const data = (await res.json()) as { lessons: Lesson[] };
-    return data.lessons;
+    const json = await httpJson<unknown>(url);
+    const data = pick(json);
+    cacheWrite(cacheKey, data);
+    return data;
   } catch {
-    return fallbackLessons;
+    const cached = cacheRead<T>(cacheKey);
+    if (cached) return cached.data;
+    return seed;
   }
+}
+
+export async function fetchLessons(): Promise<Lesson[]> {
+  return getWithCache(
+    "lessons",
+    `${API_URL}/lessons`,
+    (json) => (json as { lessons: Lesson[] }).lessons,
+    fallbackLessons,
+  );
 }
 
 export async function fetchHealth(): Promise<{ status: string }> {
-  const res = await fetch(`${API_URL}/health`, { cache: "no-store" });
-  if (!res.ok) throw new Error(`health check failed with ${res.status}`);
-  return res.json();
+  return httpJson<{ status: string }>(`${API_URL}/health`, {
+    retries: 0,
+    timeoutMs: 3000,
+  });
 }
 
 export async function fetchRoutines(): Promise<Routine[]> {
-  try {
-    const res = await fetch(`${API_URL}/routines`, { cache: "no-store" });
-    if (!res.ok) throw new Error(`backend returned ${res.status}`);
-    const data = (await res.json()) as { routines: Routine[] };
-    return data.routines;
-  } catch {
-    return fallbackRoutines;
-  }
+  return getWithCache(
+    "routines",
+    `${API_URL}/routines`,
+    (json) => (json as { routines: Routine[] }).routines,
+    fallbackRoutines,
+  );
 }
 
 export async function fetchRoutine(id: string): Promise<Routine> {
   try {
-    const res = await fetch(`${API_URL}/routines/${id}`, { cache: "no-store" });
-    if (!res.ok) throw new Error(`backend returned ${res.status}`);
-    const data = (await res.json()) as { routine: Routine };
+    const data = await httpJson<{ routine: Routine }>(`${API_URL}/routines/${id}`);
     return data.routine;
   } catch {
-    const fallback = fallbackRoutines.find((r) => r.id === id);
-    if (!fallback) throw new Error(`routine '${id}' not found`);
-    return fallback;
+    const cachedList = cacheRead<Routine[]>("routines")?.data;
+    const found =
+      cachedList?.find((r) => r.id === id) ?? fallbackRoutines.find((r) => r.id === id);
+    if (!found) throw new Error(`routine '${id}' not found`);
+    return found;
   }
 }
 
@@ -378,13 +398,12 @@ export async function createRoutine(
   payload: RoutineCreatePayload,
 ): Promise<Routine | null> {
   try {
-    const res = await fetch(`${API_URL}/routines`, {
+    const data = await httpJson<{ routine: Routine }>(`${API_URL}/routines`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(payload),
+      retries: 1,
     });
-    if (!res.ok) return null;
-    const data = (await res.json()) as { routine: Routine };
     return data.routine;
   } catch {
     return null;
@@ -396,13 +415,12 @@ export async function updateRoutine(
   payload: RoutineUpdatePayload,
 ): Promise<Routine | null> {
   try {
-    const res = await fetch(`${API_URL}/routines/${id}`, {
+    const data = await httpJson<{ routine: Routine }>(`${API_URL}/routines/${id}`, {
       method: "PUT",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(payload),
+      retries: 1,
     });
-    if (!res.ok) return null;
-    const data = (await res.json()) as { routine: Routine };
     return data.routine;
   } catch {
     return null;
@@ -411,15 +429,15 @@ export async function updateRoutine(
 
 export async function deleteRoutine(id: string): Promise<boolean> {
   try {
-    const res = await fetch(`${API_URL}/routines/${id}`, { method: "DELETE" });
-    return res.ok;
+    await httpJson<unknown>(`${API_URL}/routines/${id}`, { method: "DELETE", retries: 1 });
+    return true;
   } catch {
     return false;
   }
 }
 
 export async function evaluateGesture(payload: EvaluatePayload): Promise<EvaluateResponse> {
-  const res = await fetch(`${API_URL}/cv/evaluate`, {
+  return httpJson<EvaluateResponse>(`${API_URL}/cv/evaluate`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
@@ -427,35 +445,72 @@ export async function evaluateGesture(payload: EvaluatePayload): Promise<Evaluat
       landmarks: payload.landmarks,
       user_id: payload.profileId,
     }),
+    retries: 1,
+    timeoutMs: 4000,
   });
-  if (!res.ok) throw new Error(`evaluate failed: ${res.status}`);
-  return res.json();
+}
+
+// phase 9: on post failure we enqueue the payload to localStorage so a
+// subsequent reconnect can flush it — the learner's attempt isn't lost even
+// if the network was down at the moment of success.
+function buildProgressBody(payload: ProgressPayload) {
+  return {
+    profile_id: payload.profileId,
+    routine_id: payload.routineId,
+    gesture_id: payload.gestureId,
+    accuracy: payload.accuracy,
+    band: payload.band,
+    attempts: payload.attempts,
+    succeeded: payload.succeeded,
+    completed_routine: payload.completedRoutine ?? false,
+    incorrect_points: payload.incorrectPoints ?? [],
+  };
 }
 
 export async function postProgress(
   payload: ProgressPayload,
 ): Promise<ProgressPostResult | null> {
+  const body = buildProgressBody(payload);
   try {
-    const res = await fetch(`${API_URL}/progress`, {
+    return await httpJson<ProgressPostResult>(`${API_URL}/progress`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        profile_id: payload.profileId,
-        routine_id: payload.routineId,
-        gesture_id: payload.gestureId,
-        accuracy: payload.accuracy,
-        band: payload.band,
-        attempts: payload.attempts,
-        succeeded: payload.succeeded,
-        completed_routine: payload.completedRoutine ?? false,
-        incorrect_points: payload.incorrectPoints ?? [],
-      }),
+      body: JSON.stringify(body),
+      retries: 2,
     });
-    if (!res.ok) return null;
-    return (await res.json()) as ProgressPostResult;
-  } catch {
+  } catch (err) {
+    // only queue once we've actually exhausted retries. the HttpFailure type
+    // tells us whether we stopped due to a non-retriable http code vs network
+    // loss — we queue on any failure so the learner's work isn't lost.
+    if (err instanceof HttpFailure) queueAppend(body);
     return null;
   }
+}
+
+// phase 9: flush the queued progress posts one-by-one. exported so the
+// online/offline hook (see hooks/useOnlineStatus) can invoke it on reconnect.
+// returns the count successfully drained.
+export async function flushQueuedProgress(): Promise<number> {
+  const entries = queueRead();
+  let drained = 0;
+  for (const entry of entries) {
+    queueTouch(entry.id);
+    try {
+      await httpJson<ProgressPostResult>(`${API_URL}/progress`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(entry.payload),
+        retries: 1,
+      });
+      queueRemove(entry.id);
+      drained += 1;
+    } catch {
+      // if one fails (still offline, server still down), stop here — the
+      // rest remain queued for the next reconnect.
+      break;
+    }
+  }
+  return drained;
 }
 
 export async function fetchProgress(profileId: string): Promise<{
@@ -463,9 +518,9 @@ export async function fetchProgress(profileId: string): Promise<{
   recent: unknown[];
 } | null> {
   try {
-    const res = await fetch(`${API_URL}/progress/${profileId}`, { cache: "no-store" });
-    if (!res.ok) return null;
-    return res.json();
+    return await httpJson<{ summary: ProgressSummary; recent: unknown[] }>(
+      `${API_URL}/progress/${encodeURIComponent(profileId)}`,
+    );
   } catch {
     return null;
   }
@@ -474,24 +529,22 @@ export async function fetchProgress(profileId: string): Promise<{
 // --- profile api -----------------------------------------------------------
 
 export async function fetchProfiles(userId?: string): Promise<Profile[]> {
-  try {
-    const qs = userId ? `?user_id=${encodeURIComponent(userId)}` : "";
-    const res = await fetch(`${API_URL}/profiles${qs}`, { cache: "no-store" });
-    if (!res.ok) throw new Error(`backend returned ${res.status}`);
-    const data = (await res.json()) as { profiles: Profile[] };
-    return data.profiles;
-  } catch {
-    return fallbackProfiles;
-  }
+  const qs = userId ? `?user_id=${encodeURIComponent(userId)}` : "";
+  return getWithCache(
+    `profiles${qs}`,
+    `${API_URL}/profiles${qs}`,
+    (json) => (json as { profiles: Profile[] }).profiles,
+    fallbackProfiles,
+  );
 }
 
 export async function fetchAnalytics(
   profileId: string,
 ): Promise<AnalyticsSnapshot | null> {
   try {
-    const res = await fetch(`${API_URL}/analytics/${profileId}`, { cache: "no-store" });
-    if (!res.ok) return null;
-    const data = (await res.json()) as { analytics: AnalyticsSnapshot };
+    const data = await httpJson<{ analytics: AnalyticsSnapshot }>(
+      `${API_URL}/analytics/${encodeURIComponent(profileId)}`,
+    );
     return data.analytics;
   } catch {
     return null;
@@ -502,7 +555,7 @@ export async function createProfile(
   payload: ProfileCreatePayload,
 ): Promise<Profile | null> {
   try {
-    const res = await fetch(`${API_URL}/profiles`, {
+    const data = await httpJson<{ profile: Profile }>(`${API_URL}/profiles`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
@@ -512,9 +565,8 @@ export async function createProfile(
         age_group: payload.ageGroup ?? "middle",
         user_id: payload.userId,
       }),
+      retries: 1,
     });
-    if (!res.ok) return null;
-    const data = (await res.json()) as { profile: Profile };
     return data.profile;
   } catch {
     return null;

@@ -29,4 +29,71 @@ body {
   .pill {
     @apply inline-flex items-center gap-1.5 rounded-md bg-surface-muted px-2 py-0.5 text-xs font-medium text-ink-faint;
   }
+
+  /* hand-drawn scribble accent under key headline words. renders a wavy
+     brand-colored underline via inline svg. apply as an inline span. */
+  .scribble-underline {
+    position: relative;
+    display: inline-block;
+    white-space: nowrap;
+  }
+  .scribble-underline::after {
+    content: "";
+    position: absolute;
+    left: -4px;
+    right: -4px;
+    bottom: -0.45em;
+    height: 0.45em;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 16' preserveAspectRatio='none'><path d='M2 10 C 30 2, 60 14, 100 8 S 170 2, 198 10' fill='none' stroke='%234b6eff' stroke-width='3' stroke-linecap='round'/></svg>");
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    pointer-events: none;
+  }
+
+  /* rainbow animated brand text. use sparingly — one phrase per page. */
+  .text-rainbow {
+    background-image: linear-gradient(
+      110deg,
+      theme(colors.brand.500),
+      theme(colors.accent.lilac),
+      theme(colors.accent.mint),
+      theme(colors.accent.peach),
+      theme(colors.brand.500)
+    );
+    background-size: 300% 100%;
+    @apply animate-gradientShift bg-clip-text text-transparent;
+  }
+
+  /* soft noise overlay for depth — useful behind hero sections. */
+  .noise-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.35;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.08 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    mix-blend-mode: multiply;
+  }
+
+  /* shine-stripe for live tickers */
+  .text-shine {
+    background-image: linear-gradient(
+      90deg,
+      theme(colors.ink.DEFAULT) 0%,
+      theme(colors.ink.DEFAULT) 40%,
+      theme(colors.brand.500) 50%,
+      theme(colors.ink.DEFAULT) 60%,
+      theme(colors.ink.DEFAULT) 100%
+    );
+    background-size: 200% 100%;
+    @apply animate-shimmer bg-clip-text text-transparent;
+  }
+
+  /* subtle grid wash, sized via tailwind bg-size-* classes */
+  .bg-soft-grid {
+    @apply bg-grid-ink bg-grid-md;
+  }
+
+  .bg-soft-dots {
+    @apply bg-dots-ink bg-dots-sm;
+  }
 }

@@ -2,7 +2,7 @@
 
 import { FilesetResolver, HandLandmarker } from "@mediapipe/tasks-vision";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { compareGesture, type CompareResult } from "./comparator";
+import { compareGesture, ResultSmoother, type CompareResult } from "./comparator";
 import { GESTURES, type GestureId } from "./gestures";
 import type { Landmark } from "./landmarks";
 
@@ -38,6 +38,13 @@ export function useHandTracker({
   const rafRef = useRef<number | null>(null);
   const lastEvalRef = useRef(0);
   const cancelledRef = useRef(false);
+  // phase 9: per-gesture rolling smoother. resets when the active gesture
+  // changes so a previous target's history can't bleed into a new step.
+  const smootherRef = useRef(new ResultSmoother(4));
+
+  useEffect(() => {
+    smootherRef.current.reset();
+  }, [gestureId]);
 
   // load the model once per mount.
   useEffect(() => {
@@ -89,13 +96,15 @@ export function useHandTracker({
       const detection = landmarker.detectForVideo(video, now);
       const hand = detection.landmarks?.[0];
       if (!hand || hand.length === 0) {
+        smootherRef.current.reset();
         setFrame({ landmarks: null, result: null });
         return;
       }
 
       const landmarks: Landmark[] = hand.map((p) => ({ x: p.x, y: p.y, z: p.z }));
       const reference = GESTURES[gestureId];
-      const result = compareGesture(landmarks, reference);
+      const raw = compareGesture(landmarks, reference);
+      const result = smootherRef.current.push(raw);
       setFrame({ landmarks, result });
     },
     [videoRef, gestureId, evaluationIntervalMs],
