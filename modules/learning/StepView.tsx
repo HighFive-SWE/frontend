@@ -26,7 +26,13 @@ type Props = {
   onExit: () => void;
 };
 
-type CameraState = "idle" | "requesting" | "live" | "denied" | "unsupported";
+type CameraState =
+  | "idle"
+  | "requesting"
+  | "live"
+  | "denied"
+  | "unsupported"
+  | "disconnected";
 
 export function StepView({ routine, onComplete, onExit }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -136,6 +142,22 @@ export function StepView({ routine, onComplete, onExit }: Props) {
         audio: false,
       });
       streamRef.current = stream;
+      // phase 9: detect camera-yanked-mid-routine. without this the tracker
+      // sits in "ready" but never gets a frame; the user just sees a frozen
+      // preview with no explanation.
+      stream.getTracks().forEach((track) => {
+        track.addEventListener(
+          "ended",
+          () => {
+            if (streamRef.current === stream) {
+              streamRef.current = null;
+              setCameraState("disconnected");
+              setCameraError("the camera disconnected. tap start to reconnect.");
+            }
+          },
+          { once: true },
+        );
+      });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
@@ -336,6 +358,16 @@ function CameraMessage({
       <div className="max-w-md px-8 text-center">
         <p className="font-display text-lg">camera not supported here.</p>
         <p className="mt-2 text-sm text-white/70">{error}</p>
+      </div>
+    );
+  }
+  if (state === "disconnected") {
+    return (
+      <div className="max-w-md px-8 text-center">
+        <p className="font-display text-lg">camera dropped out.</p>
+        <p className="mt-2 text-sm text-white/70">
+          {error ?? "we lost the camera signal. tap start practice to reconnect."}
+        </p>
       </div>
     );
   }

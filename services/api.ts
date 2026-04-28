@@ -490,39 +490,59 @@ export async function postProgress(
 // phase 9: flush the queued progress posts one-by-one. exported so the
 // online/offline hook (see hooks/useOnlineStatus) can invoke it on reconnect.
 // returns the count successfully drained.
+//
+// dedup: a module-level lock guards against two concurrent flushes (e.g. the
+// online event AND the visibility event firing within the same tick). without
+// it, both calls would read the same queue snapshot and double-post each entry
+// before either had a chance to remove its row. queueRemove(id) on success is
+// what guarantees no entry is sent twice across separate flushes.
+let _flushInFlight = false;
+
 export async function flushQueuedProgress(): Promise<number> {
-  const entries = queueRead();
-  let drained = 0;
-  for (const entry of entries) {
-    queueTouch(entry.id);
-    try {
-      await httpJson<ProgressPostResult>(`${API_URL}/progress`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(entry.payload),
-        retries: 1,
-      });
-      queueRemove(entry.id);
-      drained += 1;
-    } catch {
-      // if one fails (still offline, server still down), stop here — the
-      // rest remain queued for the next reconnect.
-      break;
+  if (_flushInFlight) return 0;
+  _flushInFlight = true;
+  try {
+    const entries = queueRead();
+    let drained = 0;
+    for (const entry of entries) {
+      queueTouch(entry.id);
+      try {
+        await httpJson<ProgressPostResult>(`${API_URL}/progress`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(entry.payload),
+          retries: 1,
+        });
+        queueRemove(entry.id);
+        drained += 1;
+      } catch {
+        // if one fails (still offline, server still down), stop here — the
+        // rest remain queued for the next reconnect.
+        break;
+      }
     }
+    return drained;
+  } finally {
+    _flushInFlight = false;
   }
-  return drained;
 }
 
 export async function fetchProgress(profileId: string): Promise<{
   summary: ProgressSummary;
   recent: unknown[];
 } | null> {
+  const cacheKey = `progress:${profileId}`;
   try {
-    return await httpJson<{ summary: ProgressSummary; recent: unknown[] }>(
+    const data = await httpJson<{ summary: ProgressSummary; recent: unknown[] }>(
       `${API_URL}/progress/${encodeURIComponent(profileId)}`,
     );
+    cacheWrite(cacheKey, data);
+    return data;
   } catch {
-    return null;
+    // phase 9: keep the HUD populated when the server's gone — the learner's
+    // last-known summary is still meaningful while they practise offline.
+    const cached = cacheRead<{ summary: ProgressSummary; recent: unknown[] }>(cacheKey);
+    return cached?.data ?? null;
   }
 }
 
@@ -541,13 +561,18 @@ export async function fetchProfiles(userId?: string): Promise<Profile[]> {
 export async function fetchAnalytics(
   profileId: string,
 ): Promise<AnalyticsSnapshot | null> {
+  const cacheKey = `analytics:${profileId}`;
   try {
     const data = await httpJson<{ analytics: AnalyticsSnapshot }>(
       `${API_URL}/analytics/${encodeURIComponent(profileId)}`,
     );
+    cacheWrite(cacheKey, data.analytics);
     return data.analytics;
   } catch {
-    return null;
+    // phase 9: educator dashboard renders the last-cached snapshot when the
+    // backend is unreachable instead of going blank.
+    const cached = cacheRead<AnalyticsSnapshot>(cacheKey);
+    return cached?.data ?? null;
   }
 }
 

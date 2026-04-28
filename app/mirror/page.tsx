@@ -8,7 +8,13 @@ import { SkeletonOverlay } from "@/modules/mirror/SkeletonOverlay";
 import { GESTURE_LIST, type GestureId } from "@/modules/mirror/gestures";
 import { useHandTracker } from "@/modules/mirror/useHandTracker";
 
-type CameraState = "idle" | "requesting" | "live" | "denied" | "unsupported";
+type CameraState =
+  | "idle"
+  | "requesting"
+  | "live"
+  | "denied"
+  | "unsupported"
+  | "disconnected";
 
 export default function MirrorPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -47,6 +53,22 @@ export default function MirrorPage() {
         audio: false,
       });
       streamRef.current = stream;
+      // phase 9: surface sudden disconnects (laptop lid closed, usb camera
+      // unplugged, OS revoked permission) instead of leaving the user staring
+      // at a dead "live" tile.
+      stream.getTracks().forEach((track) => {
+        track.addEventListener(
+          "ended",
+          () => {
+            if (streamRef.current === stream) {
+              streamRef.current = null;
+              setCameraState("disconnected");
+              setCameraError("the camera disconnected. plug it back in or reload.");
+            }
+          },
+          { once: true },
+        );
+      });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
@@ -195,6 +217,16 @@ function CameraMessage({ state, error }: { state: CameraState; error: string | n
       <div className="max-w-md px-8 text-center">
         <p className="font-display text-lg">camera not supported here.</p>
         <p className="mt-2 text-sm text-white/70">{error}</p>
+      </div>
+    );
+  }
+  if (state === "disconnected") {
+    return (
+      <div className="max-w-md px-8 text-center">
+        <p className="font-display text-lg">camera dropped out.</p>
+        <p className="mt-2 text-sm text-white/70">
+          {error ?? "we lost the camera signal. tap turn on camera to reconnect."}
+        </p>
       </div>
     );
   }

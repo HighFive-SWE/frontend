@@ -70,6 +70,23 @@ export type QueuedProgress = {
   attempts: number;
 };
 
+// phase 9: tiny pub/sub so the network indicator hook updates the moment a
+// post enqueues (e.g. mid-routine network blip while the tab is still
+// "online") without waiting for a visibilitychange tick to refresh the count.
+type QueueListener = () => void;
+const _queueListeners = new Set<QueueListener>();
+
+export function subscribeToQueue(listener: QueueListener): () => void {
+  _queueListeners.add(listener);
+  return () => {
+    _queueListeners.delete(listener);
+  };
+}
+
+function _notifyQueue(): void {
+  for (const fn of _queueListeners) fn();
+}
+
 export function queueRead(): QueuedProgress[] {
   const raw = safeGet(QUEUE_KEY);
   if (!raw) return [];
@@ -90,12 +107,14 @@ export function queueAppend(payload: unknown): QueuedProgress {
   };
   const next = [...queueRead(), entry].slice(-200); // cap — don't grow unbounded
   safeSet(QUEUE_KEY, JSON.stringify(next));
+  _notifyQueue();
   return entry;
 }
 
 export function queueRemove(id: string) {
   const next = queueRead().filter((e) => e.id !== id);
   safeSet(QUEUE_KEY, JSON.stringify(next));
+  _notifyQueue();
 }
 
 export function queueTouch(id: string) {

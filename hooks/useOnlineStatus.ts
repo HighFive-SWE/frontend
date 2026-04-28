@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { flushQueuedProgress } from "@/services/api";
-import { queueLength } from "@/services/cache";
+import { queueLength, subscribeToQueue } from "@/services/cache";
 
 // phase 9: tiny hook over navigator.onLine + online/offline events. also
 // drains the offline progress queue when we come back online so any writes
@@ -45,10 +45,14 @@ export function useOnlineStatus() {
       }
     };
     document.addEventListener("visibilitychange", handleVisibility);
+    // queue mutations also fire a pub/sub event so the indicator updates
+    // without waiting for visibilitychange.
+    const unsubscribe = subscribeToQueue(refreshQueue);
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
       document.removeEventListener("visibilitychange", handleVisibility);
+      unsubscribe();
     };
   }, [drain, refreshQueue]);
 

@@ -6,7 +6,7 @@ import { SkeletonOverlay } from "@/modules/mirror/SkeletonOverlay";
 import { useLiveDetector } from "@/modules/live/useLiveDetector";
 import { usePhraseBuilder } from "@/modules/live/usePhraseBuilder";
 
-type CameraState = "idle" | "requesting" | "live" | "denied";
+type CameraState = "idle" | "requesting" | "live" | "denied" | "disconnected";
 
 export default function LivePage() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -35,6 +35,20 @@ export default function LivePage() {
         audio: false,
       });
       streamRef.current = stream;
+      // phase 9: catch sudden camera unplug / lid close — without this the
+      // detector quietly stops getting frames and the readout just freezes.
+      stream.getTracks().forEach((track) => {
+        track.addEventListener(
+          "ended",
+          () => {
+            if (streamRef.current === stream) {
+              streamRef.current = null;
+              setCameraState("disconnected");
+            }
+          },
+          { once: true },
+        );
+      });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
@@ -105,6 +119,11 @@ export default function LivePage() {
               </Button>
               {cameraState === "denied" && (
                 <p className="text-sm text-red-400">camera access was denied.</p>
+              )}
+              {cameraState === "disconnected" && (
+                <p className="text-sm text-accent-peach">
+                  camera dropped out — tap start to reconnect.
+                </p>
               )}
             </div>
           )}
