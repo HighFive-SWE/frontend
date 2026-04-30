@@ -96,4 +96,27 @@ body {
   .bg-soft-dots {
     @apply bg-dots-ink bg-dots-sm;
   }
+
+  /* phase 10: subtle route transition. RouteFade re-keys this on every
+     pathname change so the new view fades in instead of snapping. */
+  .route-fade {
+    animation: routeFade 220ms ease-out both;
+  }
+
+  @keyframes routeFade {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .route-fade {
+      animation: none;
+    }
+  }
 }

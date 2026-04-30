@@ -6,6 +6,7 @@ import type { CompareResult } from "@/modules/mirror/comparator";
 import { postProgress } from "@/services/api";
 import {
   MAX_INCORRECT_FOR_PASS,
+  SAMPLE_DEBOUNCE_MS,
   SUCCESS_ACCURACY_FLOOR,
   SUCCESS_CONSECUTIVE,
   difficultyFor,
@@ -66,9 +67,10 @@ export function useStepMachine({
       return;
     }
 
-    // debounce — only accept a new sample every ~200 ms (matches tracker cadence).
+    // debounce — only accept a new sample every SAMPLE_DEBOUNCE_MS (tuned in
+    // adaptive.ts alongside the rest of the cv cadence knobs).
     const now = performance.now();
-    if (now - lastSampleAtRef.current < 200) return;
+    if (now - lastSampleAtRef.current < SAMPLE_DEBOUNCE_MS) return;
     lastSampleAtRef.current = now;
 
     // pass gate: similarity at or above floor AND no more than

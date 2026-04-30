@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Suspense, useCallback, useState } from "react";
+import { Suspense, useCallback, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/Button";
 import { GESTURE_LIST, type GestureId } from "@/modules/mirror/gestures";
@@ -18,6 +18,25 @@ import {
 import { useQuery } from "@tanstack/react-query";
 
 const MAX_STEPS = 6;
+
+// authoritative source of valid gesture ids in the comparator. used to refuse
+// saving a routine that references an id the comparator can no longer match —
+// previously a routine with a stale gesture would silently break the learn
+// page (no demo loop, no scoring, no error).
+const VALID_GESTURE_IDS: ReadonlySet<string> = new Set(GESTURE_LIST.map((g) => g.id));
+
+function partitionSteps(steps: RoutineStep[]): {
+  valid: RoutineStep[];
+  dropped: string[];
+} {
+  const valid: RoutineStep[] = [];
+  const dropped: string[] = [];
+  for (const step of steps) {
+    if (VALID_GESTURE_IDS.has(step.gesture_id)) valid.push(step);
+    else dropped.push(step.gesture_id);
+  }
+  return { valid, dropped };
+}
 
 export default function CreateRoutinePage() {
   return (
@@ -39,8 +58,11 @@ function CreateRoutineInner() {
   const [description, setDescription] = useState("");
   const [steps, setSteps] = useState<RoutineStep[]>([]);
   const [seeded, setSeeded] = useState(false);
+  const [staleSeeded, setStaleSeeded] = useState<string[]>([]);
 
-  // if editing, load existing routine and seed the form once.
+  // if editing, load existing routine and seed the form once. silently drop
+  // any steps whose gesture_id is no longer in the comparator's library and
+  // surface the dropped ids inline so the author knows what was lost.
   useQuery({
     queryKey: ["routine", editId],
     queryFn: () => fetchRoutine(editId!),
@@ -49,25 +71,36 @@ function CreateRoutineInner() {
     meta: {},
     select: (routine) => {
       if (!seeded) {
+        const { valid, dropped } = partitionSteps(routine.steps);
         setName(routine.name);
         setDescription(routine.description);
-        setSteps(routine.steps);
+        setSteps(valid);
+        setStaleSeeded(dropped);
         setSeeded(true);
       }
       return routine;
     },
   });
 
+  const invalidStepIds = useMemo(
+    () => steps.map((s) => s.gesture_id).filter((id) => !VALID_GESTURE_IDS.has(id)),
+    [steps],
+  );
+
   const handleAdd = useCallback(
     (gestureId: GestureId) => {
       if (steps.length >= MAX_STEPS) return;
       const meta = GESTURE_LIST.find((g) => g.id === gestureId);
+      // refuse to add a gesture that isn't in the comparator's library —
+      // GestureSelector only surfaces valid ids today, but defending here means
+      // a future programmatic caller can't slip a dead id past the form.
+      if (!meta) return;
       setSteps((prev) => [
         ...prev,
         {
           gesture_id: gestureId,
-          prompt: `sign '${meta?.title ?? gestureId}'`,
-          hint: meta?.hint ?? "",
+          prompt: `sign '${meta.title}'`,
+          hint: meta.hint,
         },
       ]);
     },
@@ -98,6 +131,11 @@ function CreateRoutineInner() {
 
   const saveMutation = useMutation({
     mutationFn: async () => {
+      // final guard: never POST a routine that references a gesture the
+      // comparator can't match. shouldn't be reachable through the ui
+      // (handleAdd validates, canSave blocks) — this catches a future
+      // programmatic edit path or a bad cache rehydration.
+      if (invalidStepIds.length > 0) return null;
       if (editId) {
         return updateRoutine(editId, { name, description, steps });
       }
@@ -121,6 +159,7 @@ function CreateRoutineInner() {
     name.trim().length > 0 &&
     steps.length >= 2 &&
     steps.length <= MAX_STEPS &&
+    invalidStepIds.length === 0 &&
     !saveMutation.isPending;
 
   return (
@@ -174,6 +213,17 @@ function CreateRoutineInner() {
             onMoveUp={handleMoveUp}
             onMoveDown={handleMoveDown}
           />
+          {staleSeeded.length > 0 && (
+            <div className="rounded-2xl border border-amber-300/60 bg-amber-50 px-4 py-3 text-xs text-amber-900">
+              dropped {staleSeeded.length === 1 ? "1 step" : `${staleSeeded.length} steps`} that referenced{" "}
+              {staleSeeded.length === 1 ? "a gesture" : "gestures"} no longer in the
+              library:{" "}
+              <span className="font-mono">
+                {staleSeeded.map((id) => id.replace(/_/g, " ")).join(", ")}
+              </span>
+              . re-add a replacement before saving.
+            </div>
+          )}
           <RoutinePreview name={name} description={description} steps={steps} />
 
           <div className="flex flex-wrap items-center gap-3">

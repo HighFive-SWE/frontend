@@ -27,6 +27,13 @@ export const SUCCESS_CONSECUTIVE = 5;
 // ceiling. catches the case where similarity is 0.6 but most fingers are off.
 export const MAX_INCORRECT_FOR_PASS = 10;
 
+// minimum gap between samples consumed by the step machine. matches mediapipe's
+// ~30fps tracker cadence — anything tighter just feeds duplicate frames into
+// the consecutive-hold counter and warps the SUCCESS_CONSECUTIVE budget.
+// SUCCESS_CONSECUTIVE * SAMPLE_DEBOUNCE_MS = ~1s of sustained pose, which is
+// what a deliberate sign actually takes.
+export const SAMPLE_DEBOUNCE_MS = 200;
+
 export type Quality = "good" | "great" | "excellent";
 
 export function qualityFor(accuracy: number): Quality {

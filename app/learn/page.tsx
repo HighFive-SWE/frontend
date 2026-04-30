@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/Button";
 import { useAppStore, useStepMachineState } from "@/lib/store";
 import { CompletionScreen } from "@/modules/learning/CompletionScreen";
@@ -28,6 +28,19 @@ export default function LearnPage() {
   const completedRoutineIds = useAppStore((s) => s.completedRoutineIds);
   const completeRoutine = useAppStore((s) => s.completeRoutine);
   const exitRoutine = useAppStore((s) => s.exitRoutine);
+  const currentProfileId = useAppStore((s) => s.currentProfileId);
+
+  // phase 10: switching profiles wipes the store's step-machine state, so
+  // a half-played routine would otherwise be stranded with stepIndex=0 + a
+  // null routineId. drop the local selection so the new learner starts
+  // from the picker.
+  const initialProfileRef = useRef(currentProfileId);
+  useEffect(() => {
+    if (initialProfileRef.current === currentProfileId) return;
+    initialProfileRef.current = currentProfileId;
+    setSelected(null);
+    setCompletion(null);
+  }, [currentProfileId]);
 
   const handleSelect = useCallback((routine: Routine) => {
     setSelected(routine);

@@ -3,6 +3,7 @@ import { Inter, Space_Grotesk } from "next/font/google";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { NetworkIndicator } from "@/components/NetworkIndicator";
+import { RouteFade } from "@/components/RouteFade";
 import { SignMark } from "@/components/SignMark";
 import { GamificationLayer } from "@/modules/gamification/GamificationLayer";
 import { HUD } from "@/modules/gamification/HUD";
@@ -41,7 +42,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <Providers>
           <div className="flex min-h-dvh flex-col">
             <SiteHeader />
-            <main className="flex-1">{children}</main>
+            <main className="flex-1">
+              <RouteFade>{children}</RouteFade>
+            </main>
             <SiteFooter />
           </div>
           <GamificationLayer />

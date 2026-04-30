@@ -1,3 +1,4 @@
+import { devlog } from "@/lib/devlog";
 import { cacheRead, cacheWrite, queueAppend, queueRead, queueRemove, queueTouch } from "./cache";
 import { HttpFailure, httpJson } from "./http";
 
@@ -483,6 +484,7 @@ export async function postProgress(
     // tells us whether we stopped due to a non-retriable http code vs network
     // loss — we queue on any failure so the learner's work isn't lost.
     if (err instanceof HttpFailure) queueAppend(body);
+    devlog("progress.queue", { gestureId: payload.gestureId, queued: true });
     return null;
   }
 }
@@ -496,14 +498,39 @@ export async function postProgress(
 // it, both calls would read the same queue snapshot and double-post each entry
 // before either had a chance to remove its row. queueRemove(id) on success is
 // what guarantees no entry is sent twice across separate flushes.
+//
+// upg-9: between failed drains we honour an exponential backoff window so a
+// flapping server doesn't get hammered every time the browser fires an online
+// or visibility event. the window resets the moment a drain fully succeeds.
 let _flushInFlight = false;
+let _flushFailures = 0;
+let _flushNotBefore = 0;
+
+const FLUSH_BACKOFF_BASE_MS = 1000;
+const FLUSH_BACKOFF_MAX_MS = 30_000;
+
+function _flushBackoffMs(failures: number): number {
+  if (failures <= 0) return 0;
+  const exp = FLUSH_BACKOFF_BASE_MS * 2 ** Math.min(failures - 1, 6);
+  return Math.min(FLUSH_BACKOFF_MAX_MS, exp);
+}
 
 export async function flushQueuedProgress(): Promise<number> {
   if (_flushInFlight) return 0;
+  if (Date.now() < _flushNotBefore) return 0;
   _flushInFlight = true;
   try {
     const entries = queueRead();
+    if (entries.length === 0) {
+      // nothing to drain — clear any stale backoff so the next real failure
+      // starts the ladder from 1s rather than continuing from a prior climb.
+      _flushFailures = 0;
+      _flushNotBefore = 0;
+      return 0;
+    }
+    devlog("queue.flush.start", { pending: entries.length });
     let drained = 0;
+    let stalled = false;
     for (const entry of entries) {
       queueTouch(entry.id);
       try {
@@ -518,9 +545,20 @@ export async function flushQueuedProgress(): Promise<number> {
       } catch {
         // if one fails (still offline, server still down), stop here — the
         // rest remain queued for the next reconnect.
+        stalled = true;
         break;
       }
     }
+    if (stalled) {
+      _flushFailures += 1;
+      const wait = _flushBackoffMs(_flushFailures);
+      _flushNotBefore = Date.now() + wait;
+      devlog("queue.flush.backoff", { failures: _flushFailures, waitMs: wait });
+    } else {
+      _flushFailures = 0;
+      _flushNotBefore = 0;
+    }
+    if (drained > 0) devlog("queue.flush.done", { drained });
     return drained;
   } finally {
     _flushInFlight = false;

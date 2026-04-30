@@ -33,6 +33,11 @@ export default function FamilyPage() {
   });
 
   const profiles = profilesQuery.data ?? storeProfiles;
+  // first paint can hand back zero profiles when the persisted store is empty
+  // and the network is still in flight — skeleton keeps the grid from flashing
+  // an empty-state that immediately gets replaced.
+  const showSkeleton =
+    profiles.length === 0 && profilesQuery.isFetching && !profilesQuery.isError;
 
   const summaries = useQueries({
     queries: profiles.map((p) => ({
@@ -61,20 +66,26 @@ export default function FamilyPage() {
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {profiles.map((profile, idx) => {
-          const summary = summaries[idx]?.data?.summary ?? null;
-          return (
-            <ProfileCard
-              key={profile.id}
-              profile={profile}
-              summary={summary}
-              isActive={profile.id === current?.id}
-              onJumpIn={() => switchProfile(profile.id)}
-            />
-          );
-        })}
-      </div>
+      {showSkeleton ? (
+        <ProfileGridSkeleton />
+      ) : profiles.length === 0 ? (
+        <EmptyProfiles onAdd={() => setCreateOpen(true)} />
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {profiles.map((profile, idx) => {
+            const summary = summaries[idx]?.data?.summary ?? null;
+            return (
+              <ProfileCard
+                key={profile.id}
+                profile={profile}
+                summary={summary}
+                isActive={profile.id === current?.id}
+                onJumpIn={() => switchProfile(profile.id)}
+              />
+            );
+          })}
+        </div>
+      )}
 
       <CreateProfileModal open={createOpen} onClose={() => setCreateOpen(false)} />
     </div>
@@ -165,6 +176,49 @@ function Stat({
     >
       <dt className="text-[10px] uppercase tracking-widest text-ink-faint">{label}</dt>
       <dd className="font-display text-xl font-semibold tabular-nums">{value}</dd>
+    </div>
+  );
+}
+
+function ProfileGridSkeleton() {
+  return (
+    <div className="grid animate-pulse gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          className="flex flex-col gap-4 rounded-2xl border border-ink/5 bg-white p-6 shadow-soft"
+        >
+          <div className="flex items-center gap-3">
+            <div className="h-12 w-12 rounded-full bg-surface-muted" />
+            <div className="flex-1 space-y-2">
+              <div className="h-4 w-2/3 rounded bg-surface-muted" />
+              <div className="h-3 w-1/2 rounded bg-surface-muted" />
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            {[0, 1, 2].map((j) => (
+              <div key={j} className="h-12 rounded-2xl bg-surface-muted" />
+            ))}
+          </div>
+          <div className="h-3 w-1/3 rounded bg-surface-muted" />
+          <div className="mt-auto h-9 w-24 rounded-xl bg-surface-muted" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function EmptyProfiles({ onAdd }: { onAdd: () => void }) {
+  return (
+    <div className="flex flex-col items-start gap-3 rounded-3xl border border-dashed border-ink/10 bg-white p-8">
+      <p className="font-display text-xl">no profiles yet.</p>
+      <p className="max-w-xl text-sm text-ink-soft">
+        add a profile for each learner — they each get their own streak, xp,
+        and badges. you can switch between them any time from the navbar.
+      </p>
+      <Button onClick={onAdd} size="sm">
+        + add the first profile
+      </Button>
     </div>
   );
 }

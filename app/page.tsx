@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/Button";
 import { GestureDeck } from "@/components/GestureDeck";
+import { OnboardingHint } from "@/components/OnboardingHint";
 import { SignMarquee } from "@/components/SignMarquee";
 
 export default function HomePage() {
@@ -12,6 +13,7 @@ export default function HomePage() {
       <HowItWorks />
       <Audience />
       <CallToAction />
+      <OnboardingHint />
     </div>
   );
 }

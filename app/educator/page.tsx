@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/Button";
 import { FingerHeatmap } from "@/modules/educator/FingerHeatmap";
@@ -17,6 +18,7 @@ import {
 // educator view — pick a profile, see progress at a glance. reuses the
 // profile store so the active learner in the rest of the app is the default.
 export default function EducatorPage() {
+  const router = useRouter();
   const storeProfiles = useAppStore((s) => s.profiles);
   const setProfiles = useAppStore((s) => s.setProfiles);
   const current = useAppStore(selectCurrentProfile);
@@ -88,7 +90,7 @@ export default function EducatorPage() {
       />
 
       {!selected ? (
-        <EmptyState />
+        <EmptyState onManageProfiles={() => router.push("/family")} />
       ) : (
         <div className="flex flex-col gap-6">
           <StatsRow
@@ -262,7 +264,7 @@ function WeakGestureTable({
   );
 }
 
-function EmptyState() {
+function EmptyState({ onManageProfiles }: { onManageProfiles: () => void }) {
   return (
     <div className="flex flex-col items-start gap-3 rounded-3xl border border-dashed border-ink/10 bg-white p-8">
       <p className="font-display text-xl">no profile selected.</p>
@@ -270,7 +272,7 @@ function EmptyState() {
         pick a learner above to see their recent accuracy trend, the fingers that tend to drift,
         and which gestures deserve a little more practice.
       </p>
-      <Button variant="ghost" onClick={() => window.location.assign("/family")}>
+      <Button variant="ghost" onClick={onManageProfiles}>
         manage profiles
       </Button>
     </div>

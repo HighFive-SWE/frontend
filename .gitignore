@@ -6,10 +6,11 @@ node_modules/
 out/
 dist/
 
-# env
+# env — never commit secrets
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
+!.env.*.example
 
 # logs
 npm-debug.log*

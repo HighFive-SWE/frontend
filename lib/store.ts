@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { fallbackProfiles, type Profile } from "@/services/api";
+import { devlog } from "./devlog";
 import type {
   AppState,
   GamificationEvent,
@@ -48,6 +49,7 @@ export const useAppStore = create<AppState>()(
         const { profiles, currentProfileId } = get();
         if (!profiles.some((p) => p.id === profileId)) return;
         if (profileId === currentProfileId) return;
+        devlog("profile.switch", { from: currentProfileId, to: profileId });
         // wipe learner-specific state so the new profile starts clean until
         // its own summary hydrates.
         set((state) => ({
