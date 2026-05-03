@@ -196,6 +196,34 @@ const fallbackLessons: Lesson[] = [
   { id: "go", title: "go", description: "index finger pointing outward, thumb up — off you go.", difficulty: "growing", tags: ["daily", "communication"], gesture_ids: ["go"], scenario_tag: "daily" },
   { id: "more", title: "more", description: "pinched fingertips tapped together twice.", difficulty: "starter", tags: ["mealtime", "requests"], gesture_ids: ["more"], scenario_tag: "mealtime" },
   { id: "finished", title: "finished", description: "open palms flipped outward — all done.", difficulty: "starter", tags: ["daily", "communication"], gesture_ids: ["finished"], scenario_tag: "daily" },
+  // alphabet primer cards — one per letter, surfaced in the lessons feed so a
+  // browsing learner can discover the alphabet section without typing the url.
+  { id: "alphabet-a", title: "letter a", description: "closed fist with the thumb resting along the side — keep it flat, not tucked.", difficulty: "starter", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_a"], scenario_tag: "alphabet" },
+  { id: "alphabet-b", title: "letter b", description: "four fingers up flat; thumb crosses the palm to meet the pinky base.", difficulty: "starter", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_b"], scenario_tag: "alphabet" },
+  { id: "alphabet-c", title: "letter c", description: "fingers and thumb curve to form a relaxed letter c.", difficulty: "starter", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_c"], scenario_tag: "alphabet" },
+  { id: "alphabet-d", title: "letter d", description: "index up; the other three curl down so their tips touch the thumb pad.", difficulty: "starter", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_d"], scenario_tag: "alphabet" },
+  { id: "alphabet-e", title: "letter e", description: "fingers fold flat; thumb tucks horizontally across the fingertips.", difficulty: "growing", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_e"], scenario_tag: "alphabet" },
+  { id: "alphabet-f", title: "letter f", description: "thumb and index pinch into an 'ok'; middle, ring, and pinky stay tall.", difficulty: "starter", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_f"], scenario_tag: "alphabet" },
+  { id: "alphabet-g", title: "letter g", description: "fist on its side; thumb and index point forward in parallel.", difficulty: "growing", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_g"], scenario_tag: "alphabet" },
+  { id: "alphabet-h", title: "letter h", description: "index and middle stacked, pointing sideways; the rest fold down.", difficulty: "growing", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_h"], scenario_tag: "alphabet" },
+  { id: "alphabet-i", title: "letter i", description: "make a fist with the thumb across, then lift only the pinky.", difficulty: "starter", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_i"], scenario_tag: "alphabet" },
+  { id: "alphabet-j", title: "letter j", description: "start in 'i'; trace a small j hook in the air with the pinky.", difficulty: "growing", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_j"], scenario_tag: "alphabet" },
+  { id: "alphabet-k", title: "letter k", description: "index up, middle angled out; thumb rests in the v between them.", difficulty: "growing", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_k"], scenario_tag: "alphabet" },
+  { id: "alphabet-l", title: "letter l", description: "thumb out sideways and index straight up — a clean 90° angle.", difficulty: "starter", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_l"], scenario_tag: "alphabet" },
+  { id: "alphabet-m", title: "letter m", description: "fold the first three fingers down over the thumb; pinky stays curled.", difficulty: "growing", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_m"], scenario_tag: "alphabet" },
+  { id: "alphabet-n", title: "letter n", description: "fold index and middle over the thumb; ring and pinky stay tight.", difficulty: "growing", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_n"], scenario_tag: "alphabet" },
+  { id: "alphabet-o", title: "letter o", description: "all fingertips touch the thumb pad to form a round 'o'.", difficulty: "starter", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_o"], scenario_tag: "alphabet" },
+  { id: "alphabet-p", title: "letter p", description: "make a 'k' shape, then tip the whole hand so the index aims at the floor.", difficulty: "growing", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_p"], scenario_tag: "alphabet" },
+  { id: "alphabet-q", title: "letter q", description: "make a 'g', then tip the knuckles forward so it points downward.", difficulty: "growing", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_q"], scenario_tag: "alphabet" },
+  { id: "alphabet-r", title: "letter r", description: "twist the index over the middle; the rest curl with thumb across.", difficulty: "growing", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_r"], scenario_tag: "alphabet" },
+  { id: "alphabet-s", title: "letter s", description: "tight fist with the thumb wrapped over the front of the fingers.", difficulty: "starter", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_s"], scenario_tag: "alphabet" },
+  { id: "alphabet-t", title: "letter t", description: "fold the fingers; let the thumb peek between index and middle knuckles.", difficulty: "growing", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_t"], scenario_tag: "alphabet" },
+  { id: "alphabet-u", title: "letter u", description: "two fingers straight up and touching; ring and pinky curl over the thumb.", difficulty: "starter", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_u"], scenario_tag: "alphabet" },
+  { id: "alphabet-v", title: "letter v", description: "index and middle up but split apart; the others fold tight.", difficulty: "starter", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_v"], scenario_tag: "alphabet" },
+  { id: "alphabet-w", title: "letter w", description: "three fingers up like a fan; thumb pins the pinky across the palm.", difficulty: "starter", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_w"], scenario_tag: "alphabet" },
+  { id: "alphabet-x", title: "letter x", description: "fist with the index out and bent at the middle knuckle — a small hook.", difficulty: "growing", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_x"], scenario_tag: "alphabet" },
+  { id: "alphabet-y", title: "letter y", description: "extend thumb and pinky; the middle three fingers fold to the palm.", difficulty: "starter", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_y"], scenario_tag: "alphabet" },
+  { id: "alphabet-z", title: "letter z", description: "point with the index and trace a clean z — three quick strokes.", difficulty: "growing", tags: ["alphabet", "fingerspelling"], gesture_ids: ["letter_z"], scenario_tag: "alphabet" },
 ];
 
 // keep in sync with backend/services/routine_service.py so the UI still runs
@@ -301,6 +329,286 @@ const fallbackRoutines: Routine[] = [
       { gesture_id: "play", prompt: "sign 'play'", hint: "'y' hand — thumb and pinky out, shake." },
       { gesture_id: "more", prompt: "ask for 'more'", hint: "pinched fingertips tapped together." },
       { gesture_id: "finished", prompt: "sign 'finished'", hint: "open palms flipped outward." },
+    ],
+  },
+  // expanded library — additional scenario routines.
+  {
+    id: "morning-routine",
+    name: "morning routine",
+    description: "wake-up sequence — greet, ask for breakfast, head out.",
+    scenario_tag: "home",
+    steps: [
+      { gesture_id: "hello", prompt: "say 'hello'", hint: "open palm wave." },
+      { gesture_id: "eat", prompt: "ask to 'eat'", hint: "flat hand, fingertips tapping toward the mouth." },
+      { gesture_id: "drink", prompt: "ask to 'drink'", hint: "c-shape hand tilted back to your lips." },
+      { gesture_id: "school", prompt: "sign 'school'", hint: "flat palms clapping twice." },
+      { gesture_id: "go", prompt: "sign 'go'", hint: "index finger out, thumb up — off you go." },
+    ],
+  },
+  {
+    id: "bedtime-routine",
+    name: "bedtime routine",
+    description: "wind-down — finish the day, ask for water, head to bed.",
+    scenario_tag: "home",
+    steps: [
+      { gesture_id: "finished", prompt: "sign 'finished'", hint: "open palms flipped outward." },
+      { gesture_id: "water", prompt: "ask for 'water'", hint: "'w' shape, thumb across palm." },
+      { gesture_id: "tired", prompt: "sign 'tired'", hint: "fingers droop at the second knuckle." },
+      { gesture_id: "sleep", prompt: "sign 'sleep'", hint: "soft fingers drift down the face." },
+    ],
+  },
+  {
+    id: "feelings-checkin",
+    name: "feelings check-in",
+    description: "name what you feel — pain, tired, finished, or more.",
+    scenario_tag: "feelings",
+    steps: [
+      { gesture_id: "hello", prompt: "start with 'hello'", hint: "open palm wave." },
+      { gesture_id: "tired", prompt: "sign 'tired'", hint: "fingers drooping at the knuckle." },
+      { gesture_id: "pain", prompt: "sign 'pain'", hint: "index out — short firm jab." },
+      { gesture_id: "help", prompt: "ask for 'help'", hint: "thumb up fist, lifted on the other palm." },
+      { gesture_id: "thank_you", prompt: "say 'thank you'", hint: "flat hand from chin outward." },
+    ],
+  },
+  {
+    id: "polite-pair",
+    name: "polite pair",
+    description: "the two-word combo every kid hears — please and thank you.",
+    scenario_tag: "manners",
+    steps: [
+      { gesture_id: "please", prompt: "sign 'please'", hint: "soft hand at the chest, small circle." },
+      { gesture_id: "thank_you", prompt: "sign 'thank you'", hint: "flat hand from chin outward." },
+    ],
+  },
+  {
+    id: "yes-no-warmup",
+    name: "yes / no warmup",
+    description: "answer fast — yes, no, wait, finished.",
+    scenario_tag: "communication",
+    steps: [
+      { gesture_id: "yes", prompt: "sign 'yes'", hint: "closed fist, gentle nod motion." },
+      { gesture_id: "no", prompt: "sign 'no'", hint: "index and middle out, snap to thumb." },
+      { gesture_id: "wait", prompt: "sign 'wait'", hint: "fingers half-curled, small wiggle." },
+      { gesture_id: "finished", prompt: "sign 'finished'", hint: "open palms flipped outward." },
+    ],
+  },
+  {
+    id: "greeting-tour",
+    name: "greeting tour",
+    description: "warm-up that touches every introduction sign.",
+    scenario_tag: "daily",
+    steps: [
+      { gesture_id: "hello", prompt: "sign 'hello'", hint: "open palm wave." },
+      { gesture_id: "friend", prompt: "sign 'friend'", hint: "hook index fingers, swap which is on top." },
+      { gesture_id: "family", prompt: "sign 'family'", hint: "pinch hand sweeping in a circle." },
+      { gesture_id: "school", prompt: "sign 'school'", hint: "flat palms clapping twice." },
+      { gesture_id: "thank_you", prompt: "sign 'thank you'", hint: "flat hand from chin outward." },
+    ],
+  },
+  {
+    id: "snack-time",
+    name: "snack time",
+    description: "ask for what you want — eat, drink, more, finished.",
+    scenario_tag: "mealtime",
+    steps: [
+      { gesture_id: "please", prompt: "start with 'please'", hint: "soft hand at the chest, small circle." },
+      { gesture_id: "eat", prompt: "ask to 'eat'", hint: "fingertips tap toward the mouth." },
+      { gesture_id: "drink", prompt: "ask to 'drink'", hint: "c-shape hand tilted to your lips." },
+      { gesture_id: "more", prompt: "ask for 'more'", hint: "pinched fingertips tapped together." },
+      { gesture_id: "finished", prompt: "sign 'finished'", hint: "open palms flipped outward." },
+    ],
+  },
+  {
+    id: "safety-drill",
+    name: "safety drill",
+    description: "the urgent set — stop, help, pain, doctor.",
+    scenario_tag: "safety",
+    steps: [
+      { gesture_id: "stop", prompt: "sign 'stop'", hint: "flat palm forward, fingers up, held still." },
+      { gesture_id: "help", prompt: "sign 'help'", hint: "thumb up fist lifted on the other palm." },
+      { gesture_id: "pain", prompt: "sign 'pain'", hint: "index out — short firm jab." },
+      { gesture_id: "doctor", prompt: "sign 'doctor'", hint: "'d' hand tapped on the wrist." },
+    ],
+  },
+  {
+    id: "house-tour",
+    name: "house tour",
+    description: "walking signs around the house — home, bathroom, sleep.",
+    scenario_tag: "home",
+    steps: [
+      { gesture_id: "home", prompt: "sign 'home'", hint: "pinched fingertips from cheek to jaw." },
+      { gesture_id: "bathroom", prompt: "sign 'bathroom'", hint: "fist with thumb between index and middle, shake." },
+      { gesture_id: "sleep", prompt: "sign 'sleep'", hint: "soft fingers drifting down the face." },
+      { gesture_id: "finished", prompt: "sign 'finished'", hint: "open palms flipped outward." },
+    ],
+  },
+  {
+    id: "come-and-go",
+    name: "come and go",
+    description: "directions in motion — come, go, wait, more.",
+    scenario_tag: "communication",
+    steps: [
+      { gesture_id: "come", prompt: "sign 'come'", hint: "index finger beckoning, palm up." },
+      { gesture_id: "wait", prompt: "sign 'wait'", hint: "fingers half-curled, small wiggle." },
+      { gesture_id: "go", prompt: "sign 'go'", hint: "index out, thumb up — off you go." },
+      { gesture_id: "more", prompt: "ask for 'more'", hint: "pinched fingertips tapped together." },
+    ],
+  },
+  // alphabet practice routines — small letter clusters that stay under the
+  // 6-step backend cap and ladder by hand-shape similarity so each routine
+  // feels like a natural drill set.
+  {
+    id: "alphabet-vowels",
+    name: "vowels — a · e · i · o · u",
+    description: "the five vowels in a row — same anchor, five different shapes.",
+    scenario_tag: "alphabet",
+    steps: [
+      { gesture_id: "letter_a", prompt: "sign 'a'", hint: "closed fist with the thumb resting along the side." },
+      { gesture_id: "letter_e", prompt: "sign 'e'", hint: "fingers fold flat; thumb tucks across the fingertips." },
+      { gesture_id: "letter_i", prompt: "sign 'i'", hint: "fist with the thumb across; lift only the pinky." },
+      { gesture_id: "letter_o", prompt: "sign 'o'", hint: "all fingertips touch the thumb to form a round o." },
+      { gesture_id: "letter_u", prompt: "sign 'u'", hint: "index and middle straight up and touching." },
+    ],
+  },
+  {
+    id: "alphabet-easy-five",
+    name: "easy five — a · b · c · l · y",
+    description: "starter shapes that are visually distinct and easy to hold.",
+    scenario_tag: "alphabet",
+    steps: [
+      { gesture_id: "letter_a", prompt: "sign 'a'", hint: "closed fist, thumb along the side." },
+      { gesture_id: "letter_b", prompt: "sign 'b'", hint: "four fingers up flat, thumb across the palm." },
+      { gesture_id: "letter_c", prompt: "sign 'c'", hint: "fingers and thumb curve like a c." },
+      { gesture_id: "letter_l", prompt: "sign 'l'", hint: "thumb out sideways, index straight up." },
+      { gesture_id: "letter_y", prompt: "sign 'y'", hint: "thumb and pinky out, middle three folded." },
+    ],
+  },
+  {
+    id: "alphabet-pairs-mn",
+    name: "tricky pair — m vs n",
+    description: "two letters that share a thumb-tucked shape; nail the difference.",
+    scenario_tag: "alphabet",
+    steps: [
+      { gesture_id: "letter_m", prompt: "sign 'm' (three fingers over thumb)", hint: "fold index, middle, and ring down over the thumb." },
+      { gesture_id: "letter_n", prompt: "sign 'n' (two fingers over thumb)", hint: "fold only index and middle over the thumb." },
+      { gesture_id: "letter_t", prompt: "now 't' — thumb peeks between fingers", hint: "thumb tip pops up between index and middle knuckles." },
+    ],
+  },
+  {
+    id: "alphabet-pairs-kp",
+    name: "tricky pair — k vs p",
+    description: "same hand shape, different palm direction.",
+    scenario_tag: "alphabet",
+    steps: [
+      { gesture_id: "letter_k", prompt: "sign 'k' — index up, middle out", hint: "v-shape with thumb in the gap; palm faces forward." },
+      { gesture_id: "letter_p", prompt: "sign 'p' — same shape, palm down", hint: "tip the whole hand so the index aims at the floor." },
+    ],
+  },
+  {
+    id: "alphabet-pairs-gq",
+    name: "tricky pair — g vs q",
+    description: "another rotation pair — g points forward, q points down.",
+    scenario_tag: "alphabet",
+    steps: [
+      { gesture_id: "letter_g", prompt: "sign 'g'", hint: "fist on its side; thumb and index point forward." },
+      { gesture_id: "letter_q", prompt: "sign 'q'", hint: "same shape, but tipped so it points at the floor." },
+    ],
+  },
+  {
+    id: "alphabet-pairs-uv",
+    name: "tricky pair — u vs v",
+    description: "two fingers up — together for u, spread for v.",
+    scenario_tag: "alphabet",
+    steps: [
+      { gesture_id: "letter_u", prompt: "sign 'u'", hint: "index and middle straight up, touching." },
+      { gesture_id: "letter_v", prompt: "sign 'v'", hint: "index and middle up, but split apart." },
+    ],
+  },
+  {
+    id: "spell-mom",
+    name: "spell 'mom'",
+    description: "your first family word — three letters, three shapes.",
+    scenario_tag: "alphabet",
+    steps: [
+      { gesture_id: "letter_m", prompt: "1/3 · sign 'm'", hint: "fold three fingers down over the thumb." },
+      { gesture_id: "letter_o", prompt: "2/3 · sign 'o'", hint: "fingertips touch the thumb to form an o." },
+      { gesture_id: "letter_m", prompt: "3/3 · sign 'm' again", hint: "back to the m shape — pause, hold, breathe." },
+    ],
+  },
+  {
+    id: "spell-dad",
+    name: "spell 'dad'",
+    description: "another family word — d to a and back.",
+    scenario_tag: "alphabet",
+    steps: [
+      { gesture_id: "letter_d", prompt: "1/3 · sign 'd'", hint: "index up; the other three curl to meet the thumb pad." },
+      { gesture_id: "letter_a", prompt: "2/3 · sign 'a'", hint: "closed fist, thumb along the side." },
+      { gesture_id: "letter_d", prompt: "3/3 · sign 'd' again", hint: "back to the d shape." },
+    ],
+  },
+  {
+    id: "spell-yes",
+    name: "spell 'yes'",
+    description: "fingerspell what you also know as a single sign.",
+    scenario_tag: "alphabet",
+    steps: [
+      { gesture_id: "letter_y", prompt: "1/3 · sign 'y'", hint: "thumb and pinky out, middle three folded." },
+      { gesture_id: "letter_e", prompt: "2/3 · sign 'e'", hint: "fingers fold flat; thumb tucks across them." },
+      { gesture_id: "letter_s", prompt: "3/3 · sign 's'", hint: "tight fist, thumb wrapped over the front." },
+    ],
+  },
+  {
+    id: "spell-cat",
+    name: "spell 'cat'",
+    description: "starter animal — three crisp letters.",
+    scenario_tag: "alphabet",
+    steps: [
+      { gesture_id: "letter_c", prompt: "1/3 · sign 'c'", hint: "fingers and thumb curve into a c." },
+      { gesture_id: "letter_a", prompt: "2/3 · sign 'a'", hint: "closed fist, thumb along the side." },
+      { gesture_id: "letter_t", prompt: "3/3 · sign 't'", hint: "thumb peeks between index and middle knuckles." },
+    ],
+  },
+  {
+    id: "spell-dog",
+    name: "spell 'dog'",
+    description: "another animal — d, then o, then g.",
+    scenario_tag: "alphabet",
+    steps: [
+      { gesture_id: "letter_d", prompt: "1/3 · sign 'd'", hint: "index up; others curl to meet the thumb." },
+      { gesture_id: "letter_o", prompt: "2/3 · sign 'o'", hint: "round 'o' — fingertips meet the thumb." },
+      { gesture_id: "letter_g", prompt: "3/3 · sign 'g'", hint: "fist on its side, thumb and index forward." },
+    ],
+  },
+  {
+    id: "spell-fox",
+    name: "spell 'fox'",
+    description: "shape jump — f, o, x — three very different hands.",
+    scenario_tag: "alphabet",
+    steps: [
+      { gesture_id: "letter_f", prompt: "1/3 · sign 'f'", hint: "thumb and index pinch; middle/ring/pinky stay tall." },
+      { gesture_id: "letter_o", prompt: "2/3 · sign 'o'", hint: "round 'o' — fingertips meet the thumb." },
+      { gesture_id: "letter_x", prompt: "3/3 · sign 'x'", hint: "fist with the index out and bent at the knuckle." },
+    ],
+  },
+  {
+    id: "spell-zoo",
+    name: "spell 'zoo'",
+    description: "trace a z, then double 'o' — three shapes, two repeated.",
+    scenario_tag: "alphabet",
+    steps: [
+      { gesture_id: "letter_z", prompt: "1/3 · sign 'z'", hint: "point with the index and trace a clean z." },
+      { gesture_id: "letter_o", prompt: "2/3 · sign 'o'", hint: "round 'o' — fingertips meet the thumb." },
+      { gesture_id: "letter_o", prompt: "3/3 · sign 'o' again", hint: "hold the same 'o' shape — pause for the gap." },
+    ],
+  },
+  {
+    id: "spell-hi",
+    name: "spell 'hi'",
+    description: "your shortest spell-along — just two letters.",
+    scenario_tag: "alphabet",
+    steps: [
+      { gesture_id: "letter_h", prompt: "1/2 · sign 'h'", hint: "index and middle stacked, pointing sideways." },
+      { gesture_id: "letter_i", prompt: "2/2 · sign 'i'", hint: "fist with the thumb across; lift only the pinky." },
     ],
   },
 ];
@@ -454,6 +762,22 @@ export async function evaluateGesture(payload: EvaluatePayload): Promise<Evaluat
 // phase 9: on post failure we enqueue the payload to localStorage so a
 // subsequent reconnect can flush it — the learner's attempt isn't lost even
 // if the network was down at the moment of success.
+//
+// upg-7: every body carries a stable idempotency key generated at build
+// time. the same key flows through httpJson's retries AND through the
+// queue replay path, because both reuse the body verbatim. the backend
+// dedupes on this token within a 24h window, so a server-committed-but-
+// response-lost post can't double-credit the learner on the next try.
+function newIdempotencyKey(): string {
+  // crypto.randomUUID is browser + node 19+ native — no dependency. the
+  // fallback is just a defensive belt for older runtimes (none in production
+  // today, but cheap to write).
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `idem-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+}
+
 function buildProgressBody(payload: ProgressPayload) {
   return {
     profile_id: payload.profileId,
@@ -465,6 +789,7 @@ function buildProgressBody(payload: ProgressPayload) {
     succeeded: payload.succeeded,
     completed_routine: payload.completedRoutine ?? false,
     incorrect_points: payload.incorrectPoints ?? [],
+    idempotency_key: newIdempotencyKey(),
   };
 }
 

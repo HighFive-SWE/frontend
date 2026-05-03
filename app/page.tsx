@@ -68,10 +68,10 @@ function Hero() {
 
             {/* stat strip — static but distinctive */}
             <dl className="mt-10 flex flex-wrap gap-6 border-t border-ink/10 pt-6">
-              <StatChip label="gestures" value="27" />
-              <StatChip label="routines" value="9" />
+              <StatChip label="word signs" value="27" />
+              <StatChip label="alphabet" value="a–z" />
+              <StatChip label="routines" value="30+" />
               <StatChip label="latency" value="<1.5s" />
-              <StatChip label="account" value="none" />
             </dl>
           </div>
 
@@ -145,10 +145,10 @@ const FEATURES = [
   },
   {
     label: "04",
-    title: "educator dashboard",
+    title: "alphabet",
     description:
-      "see which gestures each learner struggles with, track accuracy over time, and spot finger-level drift.",
-    href: "/educator",
+      "every letter has its own page — shape, demo loop, and a list of words to fingerspell on camera.",
+    href: "/alphabet",
     color: "bg-accent-lilac",
   },
 ] as const;

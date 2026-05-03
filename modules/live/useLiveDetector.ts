@@ -7,7 +7,7 @@ import {
   normalizeLandmarks,
   type CompareResult,
 } from "@/modules/mirror/comparator";
-import { GESTURES, type GestureId } from "@/modules/mirror/gestures";
+import { WORD_GESTURES, type GestureId } from "@/modules/mirror/gestures";
 import type { Landmark } from "@/modules/mirror/landmarks";
 
 const MODEL_URL =
@@ -24,8 +24,10 @@ const SWAP_AFTER_FRAMES = 2;
 const ACCURACY_WINDOW = 4;
 
 // phase 9: frozen once at module load so we don't rebuild the [id, ref]
-// array every tick. GESTURES is a module-level constant, so this is safe.
-const GESTURE_ENTRIES = Object.entries(GESTURES) as [GestureId, readonly Landmark[]][];
+// array every tick. live mode iterates only the word library — alphabet
+// letters share enough finger states with words (e.g. 'b' vs hello) that
+// dropping them in here would muddy the phrase builder's match.
+const GESTURE_ENTRIES = Object.entries(WORD_GESTURES) as [GestureId, readonly Landmark[]][];
 
 export type LiveMatch = {
   gestureId: GestureId;

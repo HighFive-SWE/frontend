@@ -69,6 +69,7 @@ function SiteHeader() {
         </Link>
         <nav className="hidden items-center gap-1 text-sm md:flex">
           <NavLink href="/learn">learn</NavLink>
+          <NavLink href="/alphabet">alphabet</NavLink>
           <NavLink href="/live">live</NavLink>
           <NavLink href="/mirror">mirror</NavLink>
           <NavLink href="/family">family</NavLink>
